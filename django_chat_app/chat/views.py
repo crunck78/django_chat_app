@@ -18,4 +18,5 @@ def index(request):
             author=request.user,
             receiver=request.user
         )
-    return render(request, 'chat/index.html', {'username': 'Mihai'})
+    chatMessages = Message.objects.filter(chat__id=1)
+    return render(request, 'chat/index.html', {'messages': chatMessages})
