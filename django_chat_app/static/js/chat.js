@@ -1,44 +1,56 @@
-let user = '{{request.user}}';
+const userId = JSON.parse(document.getElementById('user_id').textContent);
 
-async function sendMessage() {
+/**
+ * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
+ * @param {SubmitEvent} event 
+ * Possible issues :  //https://stackoverflow.com/questions/69050243/reportlab-in-django-application-error-forbidden-csrf-token-missing-or-incorre
+ */
+async function handleSubmit(event) {
     try {
-        let formData = new FormData();
-        let token = '{{csrf_token}}';
-        formData.append('textmessage', messageField.value);
-        formData.append('csrfmiddlewaretoken', token);
-
-        let response = await fetch('/chat/', {
+        event.preventDefault(); // stop default submitting
+        const formData = getFormData(event.target);
+        const response = await fetch('/chat/', {
             method: 'POST',
             body: formData
         });
-
         if (!response.ok) // or check for response.status
             throw new Error(response.statusText);
-        let jsonResponse = JSON.parse(await response.json());
-        console.log(jsonResponse);
-        let newMessage = jsonResponse.fields;
-        //let newMessage = { created_at: getDateNowFormat(), author: user, text: messageField.value };
-        messageContainer.insertAdjacentHTML("beforeend", getMessageHTML(newMessage));
-
-
+        const jsonResponse = JSON.parse(await response.json());
+        const newMessage = jsonResponse.fields;
+        messageContainer.insertAdjacentHTML("beforeend", generateMessageHTML(newMessage));
     } catch (error) {
         console.error(error);
     }
 }
 
+/**
+ * Generates a Front-End HTML Message View
+ * @param {*} message - fields from a response serialized Message
+ * @returns {string} - a message HTML format
+ */
+function generateMessageHTML(message) {
+    return `<!--html-->
+        <div>
+           <span>[${message.created_at}]</span>
+            <span>${message.author}</span>:
+            <span><i>${message.text}</i></span>
+        </div>`;
+}
+
+function getFormData(form) {
+    const data = new FormData(form);
+    const value = Object.fromEntries(data.entries());
+    return value;
+}
+
+/**
+ * @deprecated
+ * @returns {string} - a custom date format
+ */
 function getDateNowFormat() {
     const monthNames = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
-    let now = new Date();
+    const now = new Date();
     return monthNames[now.getMonth()] + ". " + now.getDay() + ", " + now.getFullYear();
-}
-
-function getMessageHTML(message) {
-    return `<!--html-->
-        <div>
-           <span>[${getDateNowFormat()}]</span>
-            <span>{{ request.user }}</span>:
-            <span><i>${message.text}</i></span>
-        </div>`;
 }
