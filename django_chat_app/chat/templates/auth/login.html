@@ -21,4 +21,12 @@
         <button type="submit">Login</button>
     </div>
 </form>
+{% if redirect %}
+<a href="/register/?next=/chat/">Register</a>
+{% endif %}
+
+{% if redirect == None %}
+<a href="/register/">Register</a>
+{% endif %}
+
 {% endblock %}

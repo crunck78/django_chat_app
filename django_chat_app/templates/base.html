@@ -23,7 +23,7 @@
                 <!-- Title -->
                 <span class="mdl-layout-title">
                 {% if request.user.is_authenticated %}
-                Welcome, {{request.user.first_name}}
+                Welcome, {{request.user}}
                 {% else %}
                 Welcome, please Login.
                 {% endif %}

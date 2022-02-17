@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Register</h1>
+
+{% if passwordNotMatch %}
+<p>Password does not match!</p>
+{% endif %}
+
+<form method="post" action="/register/">
+    {% csrf_token %}
+    <input type="hidden" name="redirect" value="{{ redirect }}">
+    <div>
+        <input name="username" type="text">
+    </div>
+
+    <div>
+        <input name="email" type="email">
+    </div>
+
+    <div>
+        <input name="password" type="password">
+    </div>
+
+    <div>
+        <input name="check_password" type="password">
+    </div>
+
+    <div>
+        <button type="submit">Register</button>
+    </div>
+</form>
+{% endblock %}
