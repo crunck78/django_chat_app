@@ -1,12 +1,14 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 
 from .models import Message, Chat
 
 # Create your views here.
 
 
+@login_required(login_url='/login/')
 def index(request):
     if request.method == 'POST':
         # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
@@ -25,6 +27,7 @@ def index(request):
 
 
 def login_chat(request):
+    redirect = request.GET.get('next')
     if request.method == 'POST':
         user = authenticate(
             username=request.POST.get('username'),
@@ -32,7 +35,7 @@ def login_chat(request):
         )
         if user:
             login(request, user)
-            return HttpResponseRedirect('/chat/')
+            return HttpResponseRedirect(request.POST.get('redirect'))
         else:
-            return render(request, 'auth/login.html', {'wrongPassword': True})
-    return render(request, 'auth/login.html')
+            return render(request, 'auth/login.html', {'wrongPassword': True, 'redirect': redirect})
+    return render(request, 'auth/login.html', {'redirect': redirect})
