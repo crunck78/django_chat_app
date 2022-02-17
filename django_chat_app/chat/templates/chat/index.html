@@ -7,17 +7,42 @@
     <span><i>{{message.text}}</i></span>
 </div>
 {% endfor %}
+
+
+<script>
+    async function sendMessage() {
+        try {
+            let formData = new FormData();
+            let token = '{{csrf_token}}';
+            formData.append('textmessage', messageField.value);
+            formData.append('csrfmiddlewaretoken', token );
+
+            let response = await fetch('/chat/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) // or check for response.status
+                throw new Error(response.statusText);
+             console.log("Success!!")
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+</script>
+
 <!-- Textfield with Floating Label -->
-<form action="/chat/" method="post">
+<form onsubmit="sendMessage(); return false;" method="post">
     {% csrf_token %}
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input name="textmessage" class="mdl-textfield__input" type="text" id="sample3">
-        <label class="mdl-textfield__label" for="sample3">Text...</label>
+        <input name="textmessage" class="mdl-textfield__input" type="text" id="messageField">
+        <label class="mdl-textfield__label" for="messageField">Text...</label>
     </div>
     <!-- Accent-colored raised button with ripple -->
     <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-    Send
-</button>
+        Send
+    </button>
 </form>
 {%else%}
 <h1>Not Logged In</h1>
