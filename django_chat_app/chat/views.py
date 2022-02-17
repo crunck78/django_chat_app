@@ -1,4 +1,7 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.core import serializers
+from django.http import JsonResponse
+
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -18,12 +21,14 @@ def index(request):
         # most likely errors report if POST[keyname] does not match
         print("Received data " + request.POST['textmessage'])
         myChat = Chat.objects.get(id=1)
-        Message.objects.create(
+        newMessage = Message.objects.create(
             text=request.POST['textmessage'],
             chat=myChat,
             author=request.user,
             receiver=request.user
         )
+        serializeMessage = serializers.serialize('json', [newMessage])
+        return JsonResponse(serializeMessage[1:-1], safe=False)
     chatMessages = Message.objects.filter(chat__id=1)
     return render(request, 'chat/index.html', {'messages': chatMessages})
 
@@ -39,37 +44,39 @@ def login_chat(request):
             username=request.POST.get('username'),
             password=request.POST.get('password')
         )
-        if user: # Handle Authenticate Successfully
+        if user:  # Handle Authenticate Successfully
             # Login User
             login(request, user)
-             # Redirect to chat
-            if(redirect == '/chat/'): # For now we only need to redirect ro chat
+            # Redirect to chat
+            if(redirect == '/chat/'):  # For now we only need to redirect ro chat
                 return HttpResponseRedirect(request.POST.get('redirect'))
             else:
                 return HttpResponseRedirect('/chat/')
-        else: # Handle invalid Credentials
+        else:  # Handle invalid Credentials
             return render(request, 'auth/login.html', {'wrongPassword': True, 'redirect': redirect})
-    return render(request, 'auth/login.html', {'redirect': redirect}) # Handle non POST Requests
+    # Handle non POST Requests
+    return render(request, 'auth/login.html', {'redirect': redirect})
 
 
 def register_chat(request):
     redirect = request.GET.get('next')
     if request.method == 'POST':   # Handle POST REQUEST
-      
-        if request.POST.get('password') == request.POST.get('check_password'):  # Handle User Complete Registration
+
+        # Handle User Complete Registration
+        if request.POST.get('password') == request.POST.get('check_password'):
             # Create user
             user = User.objects.create_user(
                 username=request.POST.get('username'),
                 email=request.POST.get('email'),
                 password=request.POST.get('password')
             )
-             # Login User
+            # Login User
             login(request, user)
             # Redirect to chat
-            if(redirect == '/chat/'): # For now we only need to redirect to chat
+            if(redirect == '/chat/'):  # For now we only need to redirect to chat
                 return HttpResponseRedirect(request.POST.get('redirect'))
             else:
                 return HttpResponseRedirect('/chat/')
-        else: # Handle Passwort Check Failed
+        else:  # Handle Passwort Check Failed
             return render(request, 'auth/register.html', {'passwordNotMatch': True, 'redirect': redirect})
     return render(request, 'auth/register.html', {'redirect': redirect})
