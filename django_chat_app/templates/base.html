@@ -22,12 +22,10 @@
             <div class="mdl-layout__header-row">
                 <!-- Title -->
                 <span class="mdl-layout-title">
-                {% if request.user.is_authenticated %}
-                Welcome, {{request.user}}
-                {% else %}
-                Welcome, please Login.
-                {% endif %}
-            </span>
+                    {% if request.user.is_authenticated %}
+                    Welcome, {{request.user}}
+                    {% endif %}
+                </span>
                 <!-- Add spacer, to align navigation to the right -->
                 <div class="mdl-layout-spacer"></div>
                 <!-- Navigation. We hide it in small screens. -->
@@ -52,7 +50,7 @@
             <div class="page-content">
                 <!-- Your content goes here -->
                 {% block content%}
-                
+
                 {% endblock %}
             </div>
         </main>
