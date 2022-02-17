@@ -3,18 +3,24 @@
 {% block content %}
 
 <!-- {{ request.user.id | json_script:"user_id" }} -->
-
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
 <script defer src="{% static 'js/chat.js' %}"></script>
 
 {% if request.user.is_authenticated %}
 
-<div id="messageContainer">
+<div id="messageContainer" >
     {% for message in messages %}
-    <div>
-        <span>[{{message.created_at}}]</span>
-        <span>{{message.author.first_name}} </span>:
-        <span><i>{{message.text}}</i></span>
+    <div class="mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+           <div>
+            <p>{{message.author.first_name}} </p>
+            <h4 class="mdl-card__title-text"><b>{{message.text}}</b></h4>
+           </div>
+        </div>
+        <div class="mdl-card__supporting-text">
+            <span>[{{message.created_at}}]</span>
+        </div>
     </div>
     {% endfor %}
 </div>
@@ -23,7 +29,7 @@
 <form onsubmit="handleSubmit(event);">
     {% csrf_token %}
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input name="textmessage" class="mdl-textfield__input" type="text" id="messageField" required>
+        <textarea name="textmessage" class="mdl-textfield__input" type="text" id="messageField" required></textarea>
         <label class="mdl-textfield__label" for="messageField">Text...</label>
     </div>
     <!-- Accent-colored raised button with ripple -->

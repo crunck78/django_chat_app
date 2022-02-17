@@ -1,5 +1,7 @@
-const userId = JSON.parse(document.getElementById('user_id').textContent);
-
+// const userId = JSON.parse(document.getElementById('user_id').textContent);
+setTimeout(() => {
+    chatToBottom();
+}, 300);
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
  * @param {SubmitEvent} event 
@@ -7,17 +9,18 @@ const userId = JSON.parse(document.getElementById('user_id').textContent);
  */
 async function handleSubmit(event) {
     try {
-        event.preventDefault(); // stop default submitting
-        const formData = getFormData(event.target);
+        event.preventDefault();
+        const formData = new FormData(event.target);
         const response = await fetch('/chat/', {
             method: 'POST',
-            body: formData
+            body: formData //this has to be type FormData!!!!
         });
         if (!response.ok) // or check for response.status
             throw new Error(response.statusText);
         const jsonResponse = JSON.parse(await response.json());
         const newMessage = jsonResponse.fields;
         messageContainer.insertAdjacentHTML("beforeend", generateMessageHTML(newMessage));
+        chatToBottom();
     } catch (error) {
         console.error(error);
     }
@@ -30,13 +33,24 @@ async function handleSubmit(event) {
  */
 function generateMessageHTML(message) {
     return `<!--html-->
-        <div>
-           <span>[${message.created_at}]</span>
-            <span>${message.author}</span>:
-            <span><i>${message.text}</i></span>
-        </div>`;
+    <div class="mdl-card mdl-shadow--4dp">
+        <div class="mdl-card__title">
+           <div>
+            <p>${message.author.first_name | message.author.username | message.author.email | message.author}</p>
+            <h4 class="mdl-card__title-text"><b>${message.text}</b></h4>
+           </div>
+        </div>
+        <div class="mdl-card__supporting-text">
+            <span>[${message.created_at}]</span>
+        </div>
+    </div>`;
 }
 
+/**
+ * @deprecated
+ * @param {HTMLFormElement} form 
+ * @returns {object}
+ */
 function getFormData(form) {
     const data = new FormData(form);
     const value = Object.fromEntries(data.entries());
@@ -53,4 +67,13 @@ function getDateNowFormat() {
     ];
     const now = new Date();
     return monthNames[now.getMonth()] + ". " + now.getDay() + ", " + now.getFullYear();
+}
+
+function chatToBottom() {
+    let scrollingChat = setInterval(() => {
+        if (messageContainer.scrollTop == messageContainer.scrollHeight) {
+            clearInterval(scrollingChat);
+        }
+        messageContainer.scrollTop += 10;
+    });
 }
