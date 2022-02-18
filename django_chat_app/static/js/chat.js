@@ -1,7 +1,10 @@
 // const userId = JSON.parse(document.getElementById('user_id').textContent);
+
+
 setTimeout(() => {
     chatToBottom();
 }, 300);
+
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
  * @param {SubmitEvent} event 

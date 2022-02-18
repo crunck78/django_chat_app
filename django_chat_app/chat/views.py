@@ -6,12 +6,13 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
+from django.contrib.auth import logout
+
 from django.contrib.auth.models import User
 
 from .models import Message, Chat
 
 # Create your views here.
-
 
 @login_required(login_url='/login/')
 def index(request):
@@ -31,7 +32,6 @@ def index(request):
         return JsonResponse(serializeMessage[1:-1], safe=False)
     chatMessages = Message.objects.filter(chat__id=1)
     return render(request, 'chat/index.html', {'messages': chatMessages})
-
 
 def login_chat(request):
     # This can be None
@@ -57,7 +57,6 @@ def login_chat(request):
     # Handle non POST Requests
     return render(request, 'auth/login.html', {'redirect': redirect})
 
-
 def register_chat(request):
     redirect = request.GET.get('next')
     if request.method == 'POST':   # Handle POST REQUEST
@@ -80,3 +79,10 @@ def register_chat(request):
         else:  # Handle Passwort Check Failed
             return render(request, 'auth/register.html', {'passwordNotMatch': True, 'redirect': redirect})
     return render(request, 'auth/register.html', {'redirect': redirect})
+
+    
+def logout_chat(request):
+    # Note that logout() doesn’t throw any errors if the user wasn’t logged in.
+    logout(request)
+    # Redirect to a success page.
+    return HttpResponseRedirect('/login/')

@@ -1,5 +1,11 @@
-
-
 .page-content {
     padding: 30px 30px;
+}
+
+.mdl-layout__drawer .mdl-navigation{
+    flex: 1;
+}
+
+.mdl-layout__drawer .mdl-navigation .log-out{
+    margin-top: auto;
 }
