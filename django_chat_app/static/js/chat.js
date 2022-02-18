@@ -74,7 +74,7 @@ function getDateNowFormat() {
 
 function chatToBottom() {
     let scrollingChat = setInterval(() => {
-        if (messageContainer.scrollTop == messageContainer.scrollHeight) {
+        if(messageContainer.scrollTop + messageContainer.clientHeight == messageContainer.scrollHeight) {
             clearInterval(scrollingChat);
         }
         messageContainer.scrollTop += 10;
