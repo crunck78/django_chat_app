@@ -9,3 +9,8 @@
 .mdl-layout__drawer .mdl-navigation .log-out{
     margin-top: auto;
 }
+
+.error-text{
+    color: red;
+    text-decoration: underline;
+}

@@ -4,24 +4,27 @@
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
 <div class="mdl-card mdl-card--border mdl-shadow--16dp">
     <div class="mdl-card__title">
-        <h1>Login</h1>
+        <h1 class="mdl-card__title-text">Login</h1>
     </div>
     <div class="mdl-card__media">
-        {% if wrongPassword %}
-        <h6>Username or Password wrong!</h6>
-        {% endif %}
+       
     </div>
     <div class="mdl-card__supporting-text">
+        {% if wrongPassword %}
+        <h6 class="error-text">Username or Password wrong!</h6>
+        {% endif %}
+    </div>
+    <div class="mdl-card__actions">
         <form method="post" action="/login/">
             {% csrf_token %}
-            <input type="hidden" name="redirect" value="{{ redirect }}">
+            <input type="hidden" name="redirect" value="{{ redirect }}" >
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input name="username" class="mdl-textfield__input" type="text">
+                <input name="username" class="mdl-textfield__input" type="text" required>
                 <label class="mdl-textfield__label" for="username">Username...</label>
             </div>
         
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input name="password" class="mdl-textfield__input" type="password">
+                <input name="password" class="mdl-textfield__input" type="password" required>
                 <label class="mdl-textfield__label" for="password">Password...</label>
             </div>
         
@@ -41,9 +44,6 @@
                 {% endif %}
             </div>
         </form>
-    </div>
-    <div class="mdl-card__actions">
-
     </div>
 </div>
 {% endblock %}

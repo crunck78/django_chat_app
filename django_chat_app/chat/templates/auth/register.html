@@ -1,32 +1,57 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Register</h1>
-
-{% if passwordNotMatch %}
-<p>Password does not match!</p>
-{% endif %}
-
-<form method="post" action="/register/">
-    {% csrf_token %}
-    <input type="hidden" name="redirect" value="{{ redirect }}">
-    <div>
-        <input name="username" type="text">
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+<div class="mdl-card  mdl-card--border mdl-shadow--16dp">
+    <div class="mdl-card__title">
+        <h1 class="mdl-card__title-text">Register</h1>
     </div>
+    <div class="mdl-card__media">
 
-    <div>
-        <input name="email" type="email">
     </div>
+    <div class="mdl-card__supporting-text">
+        {% if passwordNotMatch %}
+        <h6 class="error-text">Password does not match!</h6>
+        {% endif %}
+    </div>
+    <div class="mdl-card__actions">
+        <form method="post" action="/register/">
+            {% csrf_token %}
+            <input type="hidden" name="redirect" value="{{ redirect }}">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input name="username" class="mdl-textfield__input" type="text" required>
+                <label class="mdl-textfield__label" for="username">Username...</label>
+            </div>
 
-    <div>
-        <input name="password" type="password">
-    </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input name="email" class="mdl-textfield__input" type="email" required>
+                <label class="mdl-textfield__label" for="email">Email...</label>
+            </div>
 
-    <div>
-        <input name="check_password" type="password">
-    </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input name="password" class="mdl-textfield__input" type="password" required>
+                <label class="mdl-textfield__label" for="password">Password...</label>
+            </div>
 
-    <div>
-        <button type="submit">Register</button>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input name="check_password" class="mdl-textfield__input" type="password" required>
+                <label class="mdl-textfield__label" for="check_password">Check Password...</label>
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                    Register
+                </button>
+                {% if redirect %}
+                <a class="mdl-button mdl-js-button mdl-button--accent" href="/login/?next=/chat/">Log In</a>
+                {% endif %}
+        
+                {% if redirect == None %}
+                <a class="mdl-button mdl-js-button mdl-button--accent" href="/login/">Log In</a>
+                {% endif %}
+            </div>
+        </form>
     </div>
-</form>
+</div>
 {% endblock %}
