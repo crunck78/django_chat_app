@@ -2,43 +2,43 @@
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
+<script defer src="{% static 'js/login.js' %}"></script>
+
 <div class="mdl-card mdl-card--border mdl-shadow--16dp">
     <div class="mdl-card__title">
         <h1 class="mdl-card__title-text">Login</h1>
     </div>
     <div class="mdl-card__media">
-       
+
     </div>
     <div class="mdl-card__supporting-text">
-        {% if wrongPassword %}
-        <h6 class="error-text">Username or Password wrong!</h6>
-        {% endif %}
+        <h6 id="errorLog" class="error-text"></h6>
     </div>
     <div class="mdl-card__actions">
-        <form method="post" action="/login/">
+        <form onsubmit="handleSubmit(event);">
             {% csrf_token %}
-            <input type="hidden" name="redirect" value="{{ redirect }}" >
+            <input type="hidden" name="redirect" value="{{ redirect }}">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input name="username" class="mdl-textfield__input" type="text" required>
                 <label class="mdl-textfield__label" for="username">Username...</label>
             </div>
-        
+
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input name="password" class="mdl-textfield__input" type="password" required>
                 <label class="mdl-textfield__label" for="password">Password...</label>
             </div>
-        
+
             <div>
                 <!-- Accent-colored raised button with ripple -->
                 <button type="submit"
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
                     Log In
                 </button>
-        
+
                 {% if redirect %}
                 <a class="mdl-button mdl-js-button mdl-button--accent" href="/register/?next=/chat/">Register</a>
                 {% endif %}
-        
+
                 {% if redirect == None %}
                 <a class="mdl-button mdl-js-button mdl-button--accent" href="/register/">Register</a>
                 {% endif %}

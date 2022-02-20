@@ -1,5 +1,6 @@
+from urllib import response
 from django.core import serializers
-from django.http import JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
@@ -40,27 +41,28 @@ def login_chat(request):
     redirect = request.GET.get('next')
     if request.method == 'POST':  # Handle POST Request
        # Authenticate User
+       
         user = authenticate(
             username=request.POST.get('username'),
             password=request.POST.get('password')
         )
-        if user:  # Handle Authenticate Successfully
+        if user is not None:  # Handle Authenticate Successfully
             # Login User
             login(request, user)
             # Redirect to chat
-            if(redirect == '/chat/'):  # For now we only need to redirect ro chat
+            if(redirect == '/chat/'):  # For now we only need to redirect to chat
                 return HttpResponseRedirect(request.POST.get('redirect'))
             else:
                 return HttpResponseRedirect('/chat/')
         else:  # Handle invalid Credentials
-            return render(request, 'auth/login.html', {'wrongPassword': True, 'redirect': redirect})
+            # Front End expects a text Response
+            return HttpResponseBadRequest("Username or Password incorrect!", content_type="text/plain")
     # Handle non POST Requests
     return render(request, 'auth/login.html', {'redirect': redirect})
 
 def register_chat(request):
     redirect = request.GET.get('next')
     if request.method == 'POST':   # Handle POST REQUEST
-
         # Handle User Complete Registration
         if request.POST.get('password') == request.POST.get('check_password'):
             # Create user
