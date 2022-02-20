@@ -60,6 +60,8 @@ def login_chat(request):
     # Handle non POST Requests
     return render(request, 'auth/login.html', {'redirect': redirect})
 
+# Be aware of UNIQUE constraint failed: auth_user.username
+# https://stackoverflow.com/questions/47327406/django-error-unique-constraint-failed-auth-user-username
 def register_chat(request):
     redirect = request.GET.get('next')
     if request.method == 'POST':   # Handle POST REQUEST
