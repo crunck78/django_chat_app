@@ -79,7 +79,8 @@ def register_chat(request):
             else:
                 return HttpResponseRedirect('/chat/')
         else:  # Handle Passwort Check Failed
-            return render(request, 'auth/register.html', {'passwordNotMatch': True, 'redirect': redirect})
+            # if this happens it is odd, Frontend also should do this check
+            return HttpResponseBadRequest("Password does not Match!", content_type="text/plain")
     return render(request, 'auth/register.html', {'redirect': redirect})
 
     

@@ -2,6 +2,7 @@
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/register.css' %}">
+<script defer src="{% static 'js/register.js' %}"></script>
 <div class="mdl-card  mdl-card--border mdl-shadow--16dp">
     <div class="mdl-card__title">
         <h1 class="mdl-card__title-text">Register</h1>
@@ -10,12 +11,10 @@
 
     </div>
     <div class="mdl-card__supporting-text">
-        {% if passwordNotMatch %}
-        <h6 class="error-text">Password does not match!</h6>
-        {% endif %}
+        <h6 id="errorLog" class="error-text"></h6>
     </div>
     <div class="mdl-card__actions">
-        <form method="post" action="/register/">
+        <form onsubmit="handleSubmit(event);">
             {% csrf_token %}
             <input type="hidden" name="redirect" value="{{ redirect }}">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
