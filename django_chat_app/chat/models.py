@@ -1,23 +1,37 @@
 from datetime import date, datetime
 from email.policy import default
+from typing import Any
 from xml.parsers.expat import model
 from django.db import models
 from datetime import date
 from django.conf import settings
 
-from django.dispatch import receiver
+# from django.dispatch import receiver
+from django.contrib.auth.models import User
 
 # Create your models here.
 
 
 class Chat(models.Model):
     created_at = models.DateField(default=date.today)
+    # super().__init__(*args, **kwargs)
+    chatter = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='chatter'
+    )
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='creator'
+    )
 
 
 class Message(models.Model):
     text = models.CharField(max_length=500)
     created_at = models.DateField(default=date.today)
-    # chat = Chat Klasse verknüfen
+
+    # super().__init__(*args, **kwargs)
     chat = models.ForeignKey(
         Chat,
         on_delete=models.CASCADE,
@@ -27,12 +41,12 @@ class Message(models.Model):
         null=True
     )
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name='author_message_set'
     )
     receiver = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name='receiver_message_set'
     )
