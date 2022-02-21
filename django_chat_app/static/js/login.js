@@ -11,7 +11,7 @@
             method: 'POST',
             body: formData //this has to be type FormData!!!!
         });
-        if (response.status == 400) // check for bad request
+        if (response.status == 400 || !response.ok) // check for bad request
             throw new Error(await response.text()); // in this case backend send a Bad Request Response as a text
         // const jsonResponse = JSON.parse(await response.json());
         // console.log(jsonResponse);
