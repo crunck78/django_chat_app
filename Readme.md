@@ -1,16 +1,17 @@
 # Issues
 
-On Registration or Login Success, redirect.
+Create unit Tests
+
+Create ERM
+https://www.diagrammeditor.de/
 
 Backend
-
 - Poor Exceptions handling for all Requests.
   login_chat
   register_chat
   chat
 
 FrontEnd
-
 - Material Design Lite
 Required input fields should not be marked invalid (red) automatically.
 https://github.com/google/material-design-lite/issues/1502
