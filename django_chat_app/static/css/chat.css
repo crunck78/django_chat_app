@@ -6,17 +6,17 @@
     justify-content: flex-end;
 }
 
-form {
+#chatForm {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-form .mdl-textfield{
+#chatForm .mdl-textfield{
     flex: 1;
 }
 
-form textarea {
+#chatForm textarea {
     resize: none !important;
 }
 

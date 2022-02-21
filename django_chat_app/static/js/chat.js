@@ -1,9 +1,7 @@
 // const userId = JSON.parse(document.getElementById('user_id').textContent);
-
-
-setTimeout(() => {
+window.onload = ()=>{
     chatToBottom();
-}, 300);
+}
 
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
@@ -39,7 +37,7 @@ function generateMessageHTML(message) {
     <div class="mdl-card mdl-shadow--4dp">
         <div class="mdl-card__title">
            <div>
-            <p>${message.author.first_name | message.author.username | message.author.email | message.author}</p>
+            <p>${message.author.first_name || message.author.username || message.author.email || message.author}</p>
             <h4 class="mdl-card__title-text"><b>${message.text}</b></h4>
            </div>
         </div>
@@ -47,6 +45,26 @@ function generateMessageHTML(message) {
             <span>[${message.created_at}]</span>
         </div>
     </div>`;
+}
+
+function chatToBottom() {
+    let scrollingChat = setInterval(() => {
+        if(reachedBottom(messageContainer)) {
+            clearInterval(scrollingChat);
+        }
+        messageContainer.scrollTop += 10;
+    });
+}
+
+/**
+ * Check wheatear the @param container is scrolled to the bottom
+ * @param {HTMLElement} container 
+ * @returns {boolean} true | false
+ */
+function reachedBottom(container){
+    return Math.round(container.scrollTop) + 1 + //because scrollTop is a float we may never reached bottom
+           container.clientHeight >=
+           container.scrollHeight;
 }
 
 /**
@@ -70,13 +88,4 @@ function getDateNowFormat() {
     ];
     const now = new Date();
     return monthNames[now.getMonth()] + ". " + now.getDay() + ", " + now.getFullYear();
-}
-
-function chatToBottom() {
-    let scrollingChat = setInterval(() => {
-        if(messageContainer.scrollTop + messageContainer.clientHeight == messageContainer.scrollHeight) {
-            clearInterval(scrollingChat);
-        }
-        messageContainer.scrollTop += 10;
-    });
 }

@@ -9,14 +9,14 @@
 
 {% if request.user.is_authenticated %}
 
-<div id="messageContainer" >
+<div id="messageContainer">
     {% for message in messages %}
     <div class="mdl-card mdl-shadow--4dp">
         <div class="mdl-card__title">
-           <div>
-            <p>{{message.author.first_name}} </p>
-            <h4 class="mdl-card__title-text"><b>{{message.text}}</b></h4>
-           </div>
+            <div>
+                <p>{{message.author.first_name}} </p>
+                <h4 class="mdl-card__title-text"><b>{{message.text}}</b></h4>
+            </div>
         </div>
         <div class="mdl-card__supporting-text">
             <span>[{{message.created_at}}]</span>
@@ -26,7 +26,7 @@
 </div>
 
 <!-- Textfield with Floating Label -->
-<form onsubmit="handleSubmit(event);">
+<form id="chatForm" onsubmit="handleSubmit(event);">
     {% csrf_token %}
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <textarea name="textmessage" class="mdl-textfield__input" type="text" id="messageField" required></textarea>
