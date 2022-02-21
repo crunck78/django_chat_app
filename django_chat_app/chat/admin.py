@@ -1,5 +1,7 @@
-from dataclasses import field
+from dataclasses import field, fields
+from re import search
 from django.contrib import admin
+
 from .models import Chat, Message
 
 class MessageAdmin(admin.ModelAdmin):
@@ -7,6 +9,11 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('created_at', 'text', 'author', 'receiver')
     search_fields = ('text',)
 
+class ChatAdmin(admin.ModelAdmin):
+    fields = ('chatter', 'created_at', 'creator')
+    list_display = ('created_at', 'created_at', 'creator')
+    search_fields = ('creator',)
+
 # Register your models here.
 admin.site.register(Message, MessageAdmin)
-admin.site.register(Chat)
+admin.site.register(Chat, ChatAdmin)
