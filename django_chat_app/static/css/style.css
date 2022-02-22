@@ -14,3 +14,27 @@
     color: red;
     text-decoration: underline;
 }
+
+#searchForm{
+   /* display: flex;
+   align-items: center; */
+}
+
+header .mdl-textfield{
+    width: unset;
+    color: black;
+}
+
+header .mdl-card{
+    min-height: unset;
+    width: unset;
+}
+
+header .mdl-card .mdl-card__actions{
+    padding: 0 8px;
+}
+
+header .mdl-layout__header-row{
+    max-height: 100px;
+    height: unset;
+}
