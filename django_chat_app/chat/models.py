@@ -11,18 +11,12 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-
 class Chat(models.Model):
     created_at = models.DateField(default=date.today)
-    # super().__init__(*args, **kwargs)
-    chatter = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='chatter'
-    )
     creator = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        default=None,
         related_name='creator'
     )
 
@@ -30,8 +24,6 @@ class Chat(models.Model):
 class Message(models.Model):
     text = models.CharField(max_length=500)
     created_at = models.DateField(default=date.today)
-
-    # super().__init__(*args, **kwargs)
     chat = models.ForeignKey(
         Chat,
         on_delete=models.CASCADE,
@@ -43,10 +35,12 @@ class Message(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        default=None,
         related_name='author_message_set'
     )
     receiver = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        default=None,
         related_name='receiver_message_set'
     )

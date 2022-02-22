@@ -10,8 +10,8 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('text',)
 
 class ChatAdmin(admin.ModelAdmin):
-    fields = ('chatter', 'created_at', 'creator')
-    list_display = ('created_at', 'created_at', 'creator')
+    fields = ('created_at', 'creator')
+    list_display = ('created_at', 'creator')
     search_fields = ('creator',)
 
 # Register your models here.

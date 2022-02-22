@@ -17,6 +17,7 @@ from .models import Message, Chat
 
 @login_required(login_url='/login/')
 def index(request):
+    # Handle Pressumably Message Receive
     if request.method == 'POST':
         # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
         #print("Received data " + request.POST.get('textmessage', ''))
@@ -31,8 +32,13 @@ def index(request):
         )
         serializeMessage = serializers.serialize('json', [newMessage])
         return JsonResponse(serializeMessage[1:-1], safe=False)
-    chatMessages = Message.objects.filter(chat__id=1)
-    return render(request, 'chat/index.html', {'messages': chatMessages})
+    # chatMessages = Message.objects.filter(chat__id=1)
+    # return render(request, 'chat/index.html', {'messages': chatMessages})
+    chats = [] # getAllChats(request.user)
+    return render(request, 'chat/index.html', {'chats': chats})
+
+# def getAllChats(user: User):
+#     return Chat.objects.filter(creator__id=user.id)
 
 def login_chat(request):
     # This can be None
