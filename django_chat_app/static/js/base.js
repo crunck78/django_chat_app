@@ -2,7 +2,7 @@
  * Handles an input field value as for querying all users
  * @param {*} event 
  */
-function handleSearch(event) {
+async function handleSearch(event) {
     try {
         event.preventDefault();
         const formData = new FormData(event.target);
