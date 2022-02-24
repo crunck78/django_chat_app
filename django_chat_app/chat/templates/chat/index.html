@@ -7,8 +7,6 @@
 <link rel="stylesheet" href="{% static 'css/chat.css' %}">
 <script defer src="{% static 'js/chat.js' %}"></script>
 
-{% if request.user.is_authenticated %}
-
 <div id="messageContainer">
     {% for message in messages %}
     <div class="mdl-card mdl-shadow--4dp">
@@ -37,12 +35,4 @@
         Send
     </button>
 </form>
-{%else%}
-<h1>Not Logged In</h1>
-<p>
-    Your are currently not Logged in. Please Login.<br> Click here
-    <a href="/login/">here</a>
-</p>
-
-{% endif %}
 {% endblock %}
