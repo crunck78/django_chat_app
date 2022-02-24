@@ -30,7 +30,7 @@
                 <!-- Title -->
                 <span class="mdl-layout-title">
 
-                    Welcome, {{request.user}}
+                    Welcome, <span class="mdl-typography--text-capitalize">{{ request.user }}</span>
 
                 </span>
 
@@ -74,7 +74,7 @@
 
             <nav class="mdl-navigation">
 
-                <ul class='mdl-list'>
+                <ul class="mdl-list">
                     {% for chat in chats %}
                     <li class="mdl-list__item">
                         <span class="mdl-list__item-primary-content">

@@ -41,7 +41,7 @@ function generateUserHTML(searchResult) {
         <div onclick="handleChoice(${searchResult.pk}, this)" class="mdl-list__item mdl-card mdl-card--border mdl-shadow--16dp">
             <span class="mdl-list__item-primary-content">
                 <i class="material-icons mdl-list__item-avatar">person</i>
-                <span class="capitalize">${user.username || user.firstname + ' ' + user.lastname || user.email || user}</span>
+                <span class="mdl-typography--text-capitalize">${user.username || user.firstname + ' ' + user.lastname || user.email || user}</span>
             </span>
         </div>`;
 }

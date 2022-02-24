@@ -39,10 +39,6 @@ header .mdl-layout__header-row{
     height: unset;
 }
 
-.capitalize{
-    text-transform: capitalize;
-}
-
 #searchResultsContainer .mdl-list__item{
     margin: 20px;
     transition: all 300ms;
