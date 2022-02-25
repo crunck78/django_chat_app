@@ -61,10 +61,10 @@
                 <nav class="mdl-navigation mdl-layout--large-screen-only">
                     <!-- <a class="mdl-navigation__link" href="">Link</a>
                     <a class="mdl-navigation__link" href="">Link</a>
-                    <a class="mdl-navigation__link" href="">Link</a>
                     <a class="mdl-navigation__link" href="">Link</a> -->
-
-
+                    {% if request.path != '/' %}
+                    <a class="mdl-navigation__link" href="/">Dashboard</a> 
+                    {% endif %}
 
                     <a class="mdl-navigation__link log-out" href="/logout/">Log Out</a>
                 </nav>
