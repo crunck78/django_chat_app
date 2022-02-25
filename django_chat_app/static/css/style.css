@@ -36,7 +36,11 @@ header .mdl-card .mdl-card__actions{
 
 header .mdl-layout__header-row{
     max-height: 100px;
-    height: unset;
+    height: 74px;
+}
+
+header .mdl-layout__drawer-button{
+    top: 9px;
 }
 
 #searchResultsContainer .mdl-list__item{
