@@ -1,3 +1,4 @@
+import json
 from lib2to3.pgen2.token import EQUAL
 from random import choices
 from urllib import response
@@ -56,9 +57,10 @@ def base(request):
             userChatter = Q(chatter__username=request.user.username)
 
             hasChat = Chat.objects.filter(
-                choiceCreator | userCreator,
-                choiceChatter | userChatter
+                choiceCreator & userChatter |
+                choiceChatter & userCreator
             )
+            print(hasChat)
             if(hasChat.count() > 0):
                 return HttpResponseRedirect('chat/?id=' + str(hasChat[0].pk))
             else:
@@ -80,25 +82,64 @@ def base(request):
 
 @login_required(login_url='/login/')
 def index(request):
+    # Handle Pressumably Chat Opened
+    selected_chat = None
+    if request.method == 'GET':
+
+        objectsChat = Chat.objects
+        created = objectsChat.filter(creator__username=request.user.username)
+        chattet = objectsChat.filter(chatter__username=request.user.username)
+        chats = created | chattet
+
+        chatId = request.GET.get('id', None)
+        if chatId:
+            selected_chat = Chat.objects.get(id=chatId)
+            creator = selected_chat.creator
+            chatter = selected_chat.chatter
+
+            print(receiver)
+            messages = Message.objects.filter(chat=selected_chat)
+
+            selected_chat = serializers.serialize('json', [selected_chat])
+            print(selected_chat)
+            return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': json.loads(selected_chat)[0], 'messages': messages})
+        else:
+            return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': None, 'messages': []})
     # Handle Pressumably Message Receive
     if request.method == 'POST':
         # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
         # print("Received data " + request.POST.get('textmessage', ''))
         # most likely errors report if POST[keyname] does not match
+        print(request)
         print("Received data " + request.POST['textmessage'])
-        myChat = Chat.objects.get(id=1)
-        newMessage = Message.objects.create(
-            text=request.POST['textmessage'],
-            chat=myChat,
-            author=request.user,
-            receiver=request.user
-        )
+
+        myChat = Chat.objects.get(id=request.POST['current_chat'])
+
+        creator = myChat.creator
+        chatter = myChat.chatter
+
+        if(creator == request.user):
+            newMessage = Message.objects.create(
+                text=request.POST['textmessage'],
+                chat=myChat,
+                author=request.user,  # ? can it not be
+                receiver=chatter
+            )
+        if(chatter == request.user):
+            newMessage = Message.objects.create(
+                text=request.POST['textmessage'],
+                chat=myChat,
+                author=request.user,  # ? can it not be
+                receiver=creator
+            )
         serializeMessage = serializers.serialize('json', [newMessage])
         return JsonResponse(serializeMessage[1:-1], safe=False)
-    # chatMessages = Message.objects.filter(chat__id=1)
-    # return render(request, 'chat/index.html', {'messages': chatMessages})
-    chats = []  # getAllChats(request.user)
-    return render(request, 'chat/index.html', {'chats': chats})
+
+    # objectsChat = Chat.objects
+    # created = objectsChat.filter(creator__username=request.user.username)
+    # chattet = objectsChat.filter(chatter__username=request.user.username)
+    # chats = created | chattet
+    # return render(request, 'chat/index.html', {'chats': chats})
 
 # def getAllChats(user: User):
 #     return Chat.objects.filter(creator__id=user.id)

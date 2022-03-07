@@ -3,6 +3,7 @@ window.onload = ()=>{
     chatToBottom();
 }
 
+const current_chat = JSON.parse(document.getElementById('selected_chat').textContent);
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
  * @param {SubmitEvent} event 
@@ -12,6 +13,7 @@ async function handleSubmit(event) {
     try {
         event.preventDefault();
         const formData = new FormData(event.target);
+        formData.append('current_chat', current_chat.pk)
         const response = await fetch('/chat/', {
             method: 'POST',
             body: formData //this has to be type FormData!!!!
@@ -20,6 +22,7 @@ async function handleSubmit(event) {
             throw new Error(response.statusText);
         const jsonResponse = JSON.parse(await response.json());
         const newMessage = jsonResponse.fields;
+        console.log(newMessage);
         messageContainer.insertAdjacentHTML("beforeend", generateMessageHTML(newMessage));
         chatToBottom();
     } catch (error) {
@@ -34,10 +37,10 @@ async function handleSubmit(event) {
  */
 function generateMessageHTML(message) {
     return `<!--html-->
-    <div class="mdl-card mdl-shadow--4dp">
+    <div class="mdl-card mdl-shadow--4dp ml-auto">
         <div class="mdl-card__title">
            <div>
-            <p>${message.author.first_name || message.author.username || message.author.email || message.author}</p>
+            <p class="mdl-typography--text-capitalize">${user}</p>
             <h4 class="mdl-card__title-text"><b>${message.text}</b></h4>
            </div>
         </div>

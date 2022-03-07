@@ -25,6 +25,9 @@
     overflow-y: auto;
 
     transition: all 300ms;
+
+    /* display: flex;
+    flex-direction: column; */
 }
 
 #messageContainer .mdl-card{

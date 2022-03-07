@@ -6,8 +6,8 @@
     flex: 1;
 }
 
-.mdl-layout__drawer .mdl-navigation .log-out{
-    margin-top: auto;
+.mdl-layout__drawer .mdl-navigation .mdl-list{
+    margin-bottom: auto;
 }
 
 .error-text{
@@ -18,6 +18,10 @@
 #searchForm{
    /* display: flex;
    align-items: center; */
+}
+
+header .mdl-layout__drawer-button{
+   margin: 4px !important;
 }
 
 header .mdl-textfield{
@@ -52,4 +56,8 @@ header .mdl-layout__drawer-button{
     margin-left: 40px;
     transform: scale(1.1);
     cursor: pointer;
+}
+
+.ml-auto{
+    margin-left: auto !important;
 }
