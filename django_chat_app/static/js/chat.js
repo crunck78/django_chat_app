@@ -1,9 +1,6 @@
-// const userId = JSON.parse(document.getElementById('user_id').textContent);
-window.onload = ()=>{
-    chatToBottom();
-}
+const selected_chat = JSON.parse(document.getElementById('selected_chat').textContent);
+console.log(selected_chat);
 
-const current_chat = JSON.parse(document.getElementById('selected_chat').textContent);
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
  * @param {SubmitEvent} event 
@@ -13,7 +10,7 @@ async function handleSubmit(event) {
     try {
         event.preventDefault();
         const formData = new FormData(event.target);
-        formData.append('current_chat', current_chat.pk)
+        formData.append('selected_chat', selected_chat.pk)
         const response = await fetch('/chat/', {
             method: 'POST',
             body: formData //this has to be type FormData!!!!
@@ -91,4 +88,8 @@ function getDateNowFormat() {
     ];
     const now = new Date();
     return monthNames[now.getMonth()] + ". " + now.getDay() + ", " + now.getFullYear();
+}
+
+window.onload = ()=>{
+    chatToBottom();
 }

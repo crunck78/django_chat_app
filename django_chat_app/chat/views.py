@@ -4,7 +4,7 @@ from random import choices
 from urllib import response
 from django.core import serializers
 from django.dispatch import receiver
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound, JsonResponse
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
@@ -24,6 +24,9 @@ from django.db.models import Q
 
 @login_required(login_url='/login/')
 def base(request):
+    """
+    Renders the  Base View or returns a list of all Users that matches the search POST
+    """
     # Handle Pressumably Search for Users to Chat to
     if request.method == 'POST':
         if request.POST.get('searchUser'):
@@ -37,7 +40,7 @@ def base(request):
             # https://stackoverflow.com/questions/45856557/queryset-object-has-no-attribute-meta
 
             # search for users were no chat created was
-            #
+            # do not send passwords with users list
             searched = User.objects.filter(username__startswith=searchUser)
 
             # https://stackoverflow.com/questions/22490379/how-to-return-an-array-of-objects-in-a-django-model/22490689
@@ -61,6 +64,7 @@ def base(request):
                 choiceChatter & userCreator
             )
             print(hasChat)
+            # does a chat exist between selected user and logged in user?
             if(hasChat.count() > 0):
                 return HttpResponseRedirect('chat/?id=' + str(hasChat[0].pk))
             else:
@@ -87,9 +91,12 @@ def index(request):
     if request.method == 'GET':
 
         objectsChat = Chat.objects
+       
         created = objectsChat.filter(creator__username=request.user.username)
         chattet = objectsChat.filter(chatter__username=request.user.username)
         chats = created | chattet
+
+        # print(chats)
 
         chatId = request.GET.get('id', None)
         if chatId:
@@ -97,14 +104,18 @@ def index(request):
             creator = selected_chat.creator
             chatter = selected_chat.chatter
 
-            print(receiver)
-            messages = Message.objects.filter(chat=selected_chat)
-
-            selected_chat = serializers.serialize('json', [selected_chat])
-            print(selected_chat)
-            return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': json.loads(selected_chat)[0], 'messages': messages})
+            # make sure selected chat has authenticated user as member
+            if creator == request.user or chatter == request.user:
+                messages = Message.objects.filter(chat=selected_chat)
+                selected_chat = serializers.serialize('json', [selected_chat])
+                # messages = serializers.serialize('json', messages)
+                return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': json.loads(selected_chat)[0], 'messages': messages, 'chatter':chatter})
+            else:
+                print('Trying to access a chat that does not belong to')
+                return HttpResponseBadRequest(request)
         else:
-            return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': None, 'messages': []})
+            # return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': None, 'messages': []})
+            return HttpResponseBadRequest(request)
     # Handle Pressumably Message Receive
     if request.method == 'POST':
         # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
@@ -113,26 +124,29 @@ def index(request):
         print(request)
         print("Received data " + request.POST['textmessage'])
 
-        myChat = Chat.objects.get(id=request.POST['current_chat'])
+        myChat = Chat.objects.get(id=request.POST['selected_chat'])
 
         creator = myChat.creator
         chatter = myChat.chatter
 
-        if(creator == request.user):
+        if creator == request.user:
             newMessage = Message.objects.create(
                 text=request.POST['textmessage'],
                 chat=myChat,
                 author=request.user,  # ? can it not be
                 receiver=chatter
             )
-        if(chatter == request.user):
+        if chatter == request.user:
             newMessage = Message.objects.create(
                 text=request.POST['textmessage'],
                 chat=myChat,
                 author=request.user,  # ? can it not be
                 receiver=creator
             )
-        serializeMessage = serializers.serialize('json', [newMessage])
+
+            print(newMessage.created_at)
+
+        serializeMessage = serializers.serialize('json', [newMessage,])
         return JsonResponse(serializeMessage[1:-1], safe=False)
 
     # objectsChat = Chat.objects
@@ -180,18 +194,25 @@ def register_chat(request):
         # Handle User Complete Registration
         if request.POST.get('password') == request.POST.get('check_password'):
             # Create user
+            if User.objects.filter(username=request.POST.get('username')).first():
+                return HttpResponseBadRequest('This username is already taken')
+           
             user = User.objects.create_user(
                 username=request.POST.get('username'),
-                email=request.POST.get('email'),
+                # email=request.POST.get('email'),
                 password=request.POST.get('password')
             )
-            # Login User
-            login(request, user)
-            # Redirect to chat
-            if(redirect == '/chat/'):  # For now we only need to redirect to chat
-                return HttpResponseRedirect(request.POST.get('redirect'))
-            else:
-                return HttpResponseRedirect('/chat/')
+
+            if user:
+                # Login User
+                login(request, user)
+                # Redirect to chat
+                if(redirect == '/chat/'):  # For now we only need to redirect to chat
+                    return HttpResponseRedirect(request.POST.get('redirect'))
+                else:
+                    return HttpResponseRedirect('/chat/')
+            else: 
+                return HttpResponseBadRequest()
         else:  # Handle Passwort Check Failed
             # if this happens it is odd, Frontend also should do this check
             return HttpResponseBadRequest("Password does not Match!", content_type="text/plain")

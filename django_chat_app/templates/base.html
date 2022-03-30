@@ -35,9 +35,15 @@
                 </span>
                 {% endif %}
                 {%if request.path == '/chat/' %}
-                <div>Chatting with  </div>
+                <span class="mdl-layout-title">
+                    Chatting with
+                    {% if request.user != chatter %}
+                      <span class="mdl-typography--text-capitalize">{{ chatter }}</span>
+                    {% else %}
+                        Yourself
+                    {% endif %}
+                </span>
                 {% endif %}
-
 
                 <div class="mdl-layout-spacer"></div>
                 {% if request.path == '/' %}
@@ -114,7 +120,7 @@
 
             </nav>
         </div>
-        {% endif %}
+    {% endif %}
         <main class="mdl-layout__content">
             <div class="page-content">
                 <!-- Your content goes here -->

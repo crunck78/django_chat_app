@@ -5,17 +5,13 @@
 <!-- {{ request.user.id | json_script:"user_id" }} -->
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/chat.css' %}">
-{{ selected_chat|json_script:"selected_chat" }}
+{{ selected_chat | json_script:"selected_chat" }}
 <script>
     const user = '{{request.user}}';
     console.log(user);
 </script>
 
 <script defer src="{% static 'js/chat.js' %}"></script>
-<!-- <script>
-    const current_chat = '{{ selected_chat }}';
-    console.log(typeof current_chat);
-</script> -->
 
 <div id="messageContainer">
     {% for message in messages %}
@@ -30,6 +26,8 @@
             <span>[{{message.created_at}}]</span>
         </div>
     </div>
+    {% empty %}
+        <p>Chat is empty</p>
     {% endfor %}
 </div>
 

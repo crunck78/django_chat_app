@@ -29,3 +29,7 @@ https://github.com/google/material-design-lite/issues/1502
 # Register View
 - Backend
     Guard against creating multiple accounts with at least the same email address. 
+
+# Index View
+    - Backend and Frontend
+        New Message Date Format does not have the same format on post as on loading

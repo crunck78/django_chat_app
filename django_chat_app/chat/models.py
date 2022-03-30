@@ -1,24 +1,10 @@
-from datetime import date, datetime
-from email.policy import default
-from typing import Any
-from xml.parsers.expat import model
+from datetime import date
 from django.db import models
 from datetime import date
-from django.conf import settings
-
-# from django.dispatch import receiver
 from django.contrib.auth.models import User
-from django.dispatch import receiver
+
 
 # Create your models here.
-
-
-class ChatManager(models.Manager):
-    def get_queryset(self):
-        created = super().get_queryset().filter(creator=settings.AUTH_USER_MODEL)
-        chatter = super().get_queryset().filter(chatter=settings.AUTH_USER_MODEL)
-        return created + chatter
-
 
 class Chat(models.Model):
     created_at = models.DateField(default=date.today)
@@ -35,16 +21,6 @@ class Chat(models.Model):
         default=None,
         related_name='chatter'
     )
-
-    objects = models.Manager()
-    current_objects = ChatManager()
-
-
-class MessageManager(models.Manager):
-    def get_queryset(self):
-        created = super().get_queryset().filter(author=settings.AUTH_USER_MODEL)
-        receiver = super().get_queryset().filter(receiver=settings.AUTH_USER_MODEL)
-        return created + receiver
 
 
 class Message(models.Model):
@@ -70,5 +46,3 @@ class Message(models.Model):
         default=None,
         related_name='receiver_message_set'
     )
-    objects = models.Manager()  # The default manager.
-    current_objects = MessageManager()  # The Dahl-specific manager.
