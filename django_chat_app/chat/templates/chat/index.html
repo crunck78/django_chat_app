@@ -6,6 +6,7 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/chat.css' %}">
 {{ selected_chat | json_script:"selected_chat" }}
+
 <script>
     const user = '{{request.user}}';
     console.log(user);
@@ -32,7 +33,7 @@
 </div>
 
 <!-- Textfield with Floating Label -->
-<form id="chatForm" onsubmit="handleSubmit(event);">
+<form id="chatForm" action="javascript:" onsubmit="handleSubmit(event);">
     {% csrf_token %}
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <textarea name="textmessage" class="mdl-textfield__input" type="text" id="messageField" required></textarea>

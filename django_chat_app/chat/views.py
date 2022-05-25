@@ -106,7 +106,7 @@ def index(request):
 
             # make sure selected chat has authenticated user as member
             if creator == request.user or chatter == request.user:
-                messages = Message.objects.filter(chat=selected_chat)
+                messages = Message.objects.filter(chat=selected_chat).order_by('created_at')
                 selected_chat = serializers.serialize('json', [selected_chat])
                 # messages = serializers.serialize('json', messages)
                 return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': json.loads(selected_chat)[0], 'messages': messages, 'chatter':chatter})
