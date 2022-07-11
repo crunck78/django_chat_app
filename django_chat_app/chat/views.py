@@ -1,13 +1,9 @@
 import json
-from lib2to3.pgen2.token import EQUAL
-from random import choices
-from urllib import response
 from django.core import serializers
-from django.dispatch import receiver
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound, JsonResponse
+from django.http import HttpResponseBadRequest, JsonResponse
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
@@ -27,7 +23,7 @@ def base(request):
     """
     Renders the  Base View or returns a list of all Users that matches the search POST
     """
-    # Handle Pressumably Search for Users to Chat to
+    # Handle Presumably Search for Users to Chat to
     if request.method == 'POST':
         if request.POST.get('searchUser'):
             # MultiValueDictKeyError
@@ -91,7 +87,7 @@ def index(request):
     if request.method == 'GET':
 
         objectsChat = Chat.objects
-       
+
         created = objectsChat.filter(creator__username=request.user.username)
         chattet = objectsChat.filter(chatter__username=request.user.username)
         chats = created | chattet
@@ -196,7 +192,7 @@ def register_chat(request):
             # Create user
             if User.objects.filter(username=request.POST.get('username')).first():
                 return HttpResponseBadRequest('This username is already taken')
-           
+
             user = User.objects.create_user(
                 username=request.POST.get('username'),
                 # email=request.POST.get('email'),
@@ -211,7 +207,7 @@ def register_chat(request):
                     return HttpResponseRedirect(request.POST.get('redirect'))
                 else:
                     return HttpResponseRedirect('/chat/')
-            else: 
+            else:
                 return HttpResponseBadRequest()
         else:  # Handle Passwort Check Failed
             # if this happens it is odd, Frontend also should do this check
