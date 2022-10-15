@@ -16,13 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from chat.views import base, index, login_chat, register_chat, logout_chat
+from chat.views import base, index, login_chat, register_chat, logout_chat, password_forgot, deleteMessage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', base),
     path('chat/', index),
+    path('chat/message/', deleteMessage),
+    # path('message/delete/<int:id>', deleteMessage),
     path('login/', login_chat),
     path('register/', register_chat),
-    path('logout/', logout_chat)
+    path('logout/', logout_chat),
+    path('password-forgot/', password_forgot)
 ]

@@ -1,63 +1,77 @@
 .page-content {
     padding: 30px 30px;
+    min-height: calc(100% - 60px);
 }
 
-.mdl-layout__drawer .mdl-navigation{
+.mdl-layout__drawer .mdl-navigation {
     flex: 1;
 }
 
-.mdl-layout__drawer .mdl-navigation .mdl-list{
+.mdl-layout__drawer .mdl-navigation .mdl-list {
     margin-bottom: auto;
 }
 
-.error-text{
+.mdl-layout__drawer .mdl-navigation .mdl-list .mdl-list__item .mdl-navigation__link {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* .mdl-layout__drawer .mdl-navigation .mdl-list .mdl-list__item {
+    justify-content: flex-end;
+} */
+
+.error-text {
     color: red;
     text-decoration: underline;
 }
 
-#searchForm{
-   /* display: flex;
+#searchForm {
+    /* display: flex;
    align-items: center; */
 }
 
-header .mdl-layout__drawer-button{
-   margin: 4px !important;
+header .mdl-layout__drawer-button {
+    margin: 4px !important;
 }
 
-header .mdl-textfield{
+header .mdl-textfield {
     width: unset;
     color: black;
 }
 
-header .mdl-card{
+header .mdl-card {
     min-height: unset;
     width: unset;
 }
 
-header .mdl-card .mdl-card__actions{
+header .mdl-card .mdl-card__actions {
     padding: 0 8px;
 }
 
-header .mdl-layout__header-row{
+header .mdl-layout__header-row {
     max-height: 100px;
     height: 74px;
 }
 
-header .mdl-layout__drawer-button{
+header .mdl-layout__drawer-button {
     top: 9px;
 }
 
-#searchResultsContainer .mdl-list__item{
+#searchResultsContainer .mdl-list__item {
     margin: 20px;
     transition: all 300ms;
 }
 
-#searchResultsContainer .mdl-list__item:hover{
+#searchResultsContainer .mdl-list__item:hover {
     margin-left: 40px;
     transform: scale(1.1);
     cursor: pointer;
 }
 
-.ml-auto{
+.ml-auto {
     margin-left: auto !important;
+}
+
+.d-none {
+    display: none !important;
 }

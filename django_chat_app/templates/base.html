@@ -37,10 +37,13 @@
                 {%if request.path == '/chat/' %}
                 <span class="mdl-layout-title">
                     Chatting with
-                    {% if request.user != chatter %}
-                      <span class="mdl-typography--text-capitalize">{{ chatter }}</span>
-                    {% else %}
+                    {% if request.user == chatter and request.user == creator %}
                         Yourself
+                    {% else %}
+                        <span class="mdl-typography--text-capitalize">
+                            {% if request.user == creator %}{{ chatter }}{% endif %}
+                            {% if request.user == chatter %}{{ creator }}{% endif %}
+                        </span>
                     {% endif %}
                 </span>
                 {% endif %}
@@ -94,7 +97,13 @@
                         <a class="mdl-navigation__link" href="/chat?id={{ chat.pk }}">
                             <span class="mdl-list__item-primary-content">
                                 <i class="material-icons mdl-list__item-avatar">person</i>
-                                <span class="mdl-typography--text-capitalize">{{chat.chatter.username}}</span>
+                                <span class="mdl-typography--text-capitalize">
+                                    {% if request.user == chat.creator and request.user == chat.chatter %}
+                                        Yourself {{ chat.chatter.username }}
+                                    {% elif request.user == chat.creator %} {{ chat.chatter.username }}
+                                    {% elif request.user == chat.chatter %} {{ chat.creator.username }}
+                                    {% endif %}
+                                </span>
                             </span>
                         </a>
                     </li>
@@ -120,7 +129,7 @@
 
             </nav>
         </div>
-    {% endif %}
+        {% endif %}
         <main class="mdl-layout__content">
             <div class="page-content">
                 <!-- Your content goes here -->

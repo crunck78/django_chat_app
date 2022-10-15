@@ -3,14 +3,15 @@ console.log(selected_chat);
 
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
- * @param {SubmitEvent} event 
+ * @param {SubmitEvent} event
  * Possible issues :  //https://stackoverflow.com/questions/69050243/reportlab-in-django-application-error-forbidden-csrf-token-missing-or-incorre
  */
 async function handleSubmit(event) {
     try {
         event.preventDefault();
         const formData = new FormData(event.target);
-        formData.append('selected_chat', selected_chat.pk)
+        formData.append('selected_chat', selected_chat.pk);
+        formData.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
         const response = await fetch('/chat/', {
             method: 'POST',
             body: formData //this has to be type FormData!!!!
@@ -22,6 +23,7 @@ async function handleSubmit(event) {
         console.log(newMessage);
         messageContainer.insertAdjacentHTML("beforeend", generateMessageHTML(newMessage));
         chatToBottom();
+        clearInput();
     } catch (error) {
         console.error(error);
     }
@@ -34,7 +36,7 @@ async function handleSubmit(event) {
  */
 function generateMessageHTML(message) {
     return `<!--html-->
-    <div class="mdl-card mdl-shadow--4dp ml-auto">
+    <div id="message${message.pk}" class="mdl-card mdl-shadow--4dp ml-auto">
         <div class="mdl-card__title">
            <div>
             <p class="mdl-typography--text-capitalize">${user}</p>
@@ -49,27 +51,31 @@ function generateMessageHTML(message) {
 
 function chatToBottom() {
     let scrollingChat = setInterval(() => {
-        if(reachedBottom(messageContainer)) {
+        if (reachedBottom(messageContainer)) {
             clearInterval(scrollingChat);
         }
         messageContainer.scrollTop += 10;
     });
 }
 
+function clearInput() {
+    document.getElementById('messageField').value = "";
+}
+
 /**
  * Check wheatear the @param container is scrolled to the bottom
- * @param {HTMLElement} container 
+ * @param {HTMLElement} container
  * @returns {boolean} true | false
  */
-function reachedBottom(container){
+function reachedBottom(container) {
     return Math.round(container.scrollTop) + 1 + //because scrollTop is a float we may never reached bottom
-           container.clientHeight >=
-           container.scrollHeight;
+        container.clientHeight >=
+        container.scrollHeight;
 }
 
 /**
  * @deprecated
- * @param {HTMLFormElement} form 
+ * @param {HTMLFormElement} form
  * @returns {object}
  */
 function getFormData(form) {
@@ -90,6 +96,41 @@ function getDateNowFormat() {
     return monthNames[now.getMonth()] + ". " + now.getDay() + ", " + now.getFullYear();
 }
 
-window.onload = ()=>{
-    chatToBottom();
+async function handleDeleteMessage(messageId){
+    console.log(messageId);
+    try {
+        const formData = new FormData();
+        formData.append('selected_message_id', messageId);
+        formData.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+        const response = await fetch('/chat/message/', {
+            method: 'POST',
+            body: formData //this has to be type FormData!!!!
+        });
+        if (!response.ok) // or check for response.status
+            throw new Error(response.statusText);
+        deleteMessageHTML(messageId);
+    } catch (error) {
+        console.error(error);
+    }
 }
+
+function deleteMessageHTML(messageId){
+    document.getElementById(`message${messageId}`).remove();
+}
+
+window.onload = () => {
+    chatToBottom();
+    //chatListenToScroll();
+}
+
+// function chatListenToScroll() {
+//     document.getElementById("messageContainer")
+//         .addEventListener("scroll", () => {
+//             document.getElementsByClassName("mdl-menu")
+//                 .forEach( mdlMenu => updatePosition(mdlMenu) )
+//         });
+// }
+
+// function updatePosition(mdlMenu){
+
+// }

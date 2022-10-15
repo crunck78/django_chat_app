@@ -9,14 +9,14 @@
 
 <script>
     const user = '{{request.user}}';
-    console.log(user);
+    const csrfmiddlewaretoken = '{{ csrf_token }}';
 </script>
 
 <script defer src="{% static 'js/chat.js' %}"></script>
 
 <div id="messageContainer">
     {% for message in messages %}
-    <div class="mdl-card mdl-shadow--4dp {% if message.author == request.user %}ml-auto{% endif %} ">
+    <div id="message{{message.pk}}" class="mdl-card mdl-shadow--4dp {% if message.author == request.user %}ml-auto{% endif %}">
         <div class="mdl-card__title">
             <div>
                 <p class="mdl-typography--text-capitalize">{{message.author}} </p>
@@ -26,15 +26,32 @@
         <div class="mdl-card__supporting-text">
             <span>[{{message.created_at}}]</span>
         </div>
+        <div class="mdl-card__menu">
+            <div class="menu-container">
+                <!-- Right aligned menu below button -->
+                <button id="menu{{message.pk}}" class="mdl-button mdl-js-button mdl-button--icon">
+                    <i class="material-icons">more_vert</i>
+                </button>
+
+                <ul class="mdl-menu {% if forloop.counter0 == 0 %}mdl-menu--bottom-right{% else %}mdl-menu--top-right{% endif %} mdl-js-menu mdl-js-ripple-effect"
+                    for="menu{{message.pk}}">
+                    <li onclick="handleDeleteMessage({{message.pk}})" class="mdl-menu__item">Delete Message</li>
+                    {% comment %} <a href="message/delete/{{ message.pk }}">delete</a> {% endcomment %}
+                    {% comment %} <li class="mdl-menu__item">Another Action</li>
+                    <li disabled class="mdl-menu__item">Disabled Action</li>
+                    <li class="mdl-menu__item">Yet Another Action</li> {% endcomment %}
+                </ul>
+
+            </div>
+        </div>
     </div>
     {% empty %}
-        <p>Chat is empty</p>
+    <p>Chat is empty</p>
     {% endfor %}
 </div>
 
 <!-- Textfield with Floating Label -->
 <form id="chatForm" action="javascript:" onsubmit="handleSubmit(event);">
-    {% csrf_token %}
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <textarea name="textmessage" class="mdl-textfield__input" type="text" id="messageField" required></textarea>
         <label class="mdl-textfield__label" for="messageField">Text...</label>

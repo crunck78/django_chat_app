@@ -23,7 +23,6 @@
 #messageContainer{
     max-height: 100%;
     overflow-y: auto;
-
     transition: all 300ms;
 
     /* display: flex;
@@ -33,12 +32,18 @@
 #messageContainer .mdl-card{
     margin: 6px;
     min-height: unset;
+    overflow: visible;
+    z-index: unset;
     /* animation: show 3000ms ease-in-out; */
 }
 
 #messageContainer .mdl-card .mdl-card__supporting-text{
     display: flex;
     justify-content: flex-end;
+}
+
+#messageContainer .mdl-card .mdl-card__menu .menu-container{
+    position: relative;
 }
 
 /* @keyframes show {

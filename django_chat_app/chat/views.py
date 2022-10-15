@@ -1,6 +1,6 @@
 import json
 from django.core import serializers
-from django.http import HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -15,7 +15,27 @@ from .models import Message, Chat
 
 from django.db.models import Q
 
+from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
+
+@login_required(login_url='/login/')
+def deleteMessage(request):
+    """
+    Deletes a message from chat
+    """
+    if request.method == 'POST':
+        if request.POST.get('selected_message_id'):
+           Message.objects.get(id=request.POST.get('selected_message_id')).delete()
+        return HttpResponse(request, "Request Complete")
+    else:
+        return HttpResponseBadRequest(request)
+
+# @login_required(login_url='/login/')
+# def deleteMessage(request, id):
+#   message = Message.objects.get(id=id)
+#   message.delete()
+#   return render()
 
 
 @login_required(login_url='/login/')
@@ -47,7 +67,7 @@ def base(request):
         if request.POST.get('userId'):
 
             print("Got value :" + request.POST.get('userId'))
-            # find user, create a chat if not allready exist, and redirect to new created chat or existing one
+            # find user, create a chat if not already exist, and redirect to new created chat or existing one
             choice = User.objects.filter(pk=request.POST.get('userId'))[0]
 
             choiceCreator = Q(creator__username=choice.username)
@@ -105,7 +125,7 @@ def index(request):
                 messages = Message.objects.filter(chat=selected_chat).order_by('created_at')
                 selected_chat = serializers.serialize('json', [selected_chat])
                 # messages = serializers.serialize('json', messages)
-                return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': json.loads(selected_chat)[0], 'messages': messages, 'chatter':chatter})
+                return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': json.loads(selected_chat)[0], 'messages': messages, 'chatter':chatter, 'creator':creator})
             else:
                 print('Trying to access a chat that does not belong to')
                 return HttpResponseBadRequest(request)
@@ -125,22 +145,21 @@ def index(request):
         creator = myChat.creator
         chatter = myChat.chatter
 
-        if creator == request.user:
-            newMessage = Message.objects.create(
-                text=request.POST['textmessage'],
-                chat=myChat,
-                author=request.user,  # ? can it not be
-                receiver=chatter
-            )
-        if chatter == request.user:
-            newMessage = Message.objects.create(
-                text=request.POST['textmessage'],
-                chat=myChat,
-                author=request.user,  # ? can it not be
-                receiver=creator
-            )
+        newMessage = Message.objects.create(
+            text=request.POST['textmessage'],
+            chat=myChat,
+            author=request.user,  # ? can it not be
+            receiver=chatter
+        )
+        # if chatter == request.user:
+        #     newMessage = Message.objects.create(
+        #         text=request.POST['textmessage'],
+        #         chat=myChat,
+        #         author=request.user,  # ? can it not be
+        #         receiver=creator
+        #     )
 
-            print(newMessage.created_at)
+        print(newMessage.created_at)
 
         serializeMessage = serializers.serialize('json', [newMessage,])
         return JsonResponse(serializeMessage[1:-1], safe=False)
@@ -184,6 +203,8 @@ def login_chat(request):
 # https://stackoverflow.com/questions/47327406/django-error-unique-constraint-failed-auth-user-username
 
 
+
+@csrf_exempt
 def register_chat(request):
     redirect = request.GET.get('next')
     if request.method == 'POST':   # Handle POST REQUEST
@@ -220,3 +241,8 @@ def logout_chat(request):
     logout(request)
     # Redirect to a success page.
     return HttpResponseRedirect('/login/')
+
+
+def password_forgot(request):
+    redirect = request.GET.get('next')
+    return render(request, 'auth/passwordForgot.html', {'redirect' : redirect})
