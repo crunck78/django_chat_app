@@ -3,8 +3,6 @@ from datetime import date
 from django.contrib.auth.models import User
 
 
-# Create your models here.
-
 class Chat(models.Model):
     created_at = models.DateField(default=date.today)
     creator = models.ForeignKey(

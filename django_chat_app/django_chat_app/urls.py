@@ -16,7 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from chat.views import base, index, login_chat, register_chat, logout_chat, password_forgot, deleteMessage
+from chat.views import (
+    base,
+    index,
+    login_chat,
+    register_chat,
+    logout_chat,
+    password_forgot,
+    deleteMessage
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

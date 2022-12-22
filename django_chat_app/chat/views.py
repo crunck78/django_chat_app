@@ -17,7 +17,6 @@ from django.db.models import Q
 
 from django.views.decorators.csrf import csrf_exempt
 
-# Create your views here.
 
 @login_required(login_url='/login/')
 def deleteMessage(request):
@@ -26,7 +25,8 @@ def deleteMessage(request):
     """
     if request.method == 'POST':
         if request.POST.get('selected_message_id'):
-           Message.objects.get(id=request.POST.get('selected_message_id')).delete()
+            message_id = request.POST.get('selected_message_id')
+            Message.objects.get(id=message_id).delete()
         return HttpResponse(request, "Request Complete")
     else:
         return HttpResponseBadRequest(request)
@@ -41,7 +41,8 @@ def deleteMessage(request):
 @login_required(login_url='/login/')
 def base(request):
     """
-    Renders the  Base View or returns a list of all Users that matches the search POST
+    Renders the  Base View or returns a list of all Users
+    that matches the search POST
     """
     # Handle Presumably Search for Users to Chat to
     if request.method == 'POST':
@@ -67,7 +68,8 @@ def base(request):
         if request.POST.get('userId'):
 
             print("Got value :" + request.POST.get('userId'))
-            # find user, create a chat if not already exist, and redirect to new created chat or existing one
+            # find user, create a chat if not already exist
+            # and redirect to new created chat or existing one
             choice = User.objects.filter(pk=request.POST.get('userId'))[0]
 
             choiceCreator = Q(creator__username=choice.username)
@@ -81,7 +83,7 @@ def base(request):
             )
             print(hasChat)
             # does a chat exist between selected user and logged in user?
-            if(hasChat.count() > 0):
+            if (hasChat.count() > 0):
                 return HttpResponseRedirect('chat/?id=' + str(hasChat[0].pk))
             else:
                 newChat = Chat.objects.create(
@@ -122,15 +124,24 @@ def index(request):
 
             # make sure selected chat has authenticated user as member
             if creator == request.user or chatter == request.user:
-                messages = Message.objects.filter(chat=selected_chat).order_by('created_at')
+                selected_messages = Message.objects.filter(chat=selected_chat)
+                messages = selected_messages.order_by('created_at')
                 selected_chat = serializers.serialize('json', [selected_chat])
                 # messages = serializers.serialize('json', messages)
-                return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': json.loads(selected_chat)[0], 'messages': messages, 'chatter':chatter, 'creator':creator})
+                context = {
+                    'chats': chats,
+                    'selected_chat': json.loads(selected_chat)[0],
+                    'messages': messages,
+                    'chatter': chatter,
+                    'creator': creator
+                }
+                return render(request, 'chat/index.html', context)
             else:
                 print('Trying to access a chat that does not belong to')
                 return HttpResponseBadRequest(request)
         else:
-            # return render(request, 'chat/index.html', {'chats': chats, 'selected_chat': None, 'messages': []})
+            # context = {'chats': chats, 'selected_chat': None, 'messages': []}
+            # return render(request, 'chat/index.html', context)
             return HttpResponseBadRequest(request)
     # Handle Pressumably Message Receive
     if request.method == 'POST':
@@ -161,7 +172,7 @@ def index(request):
 
         print(newMessage.created_at)
 
-        serializeMessage = serializers.serialize('json', [newMessage,])
+        serializeMessage = serializers.serialize('json', [newMessage, ])
         return JsonResponse(serializeMessage[1:-1], safe=False)
 
     # objectsChat = Chat.objects
@@ -176,11 +187,14 @@ def index(request):
 
 def login_chat(request):
     # This can be None
-    # Sure case: request.GET.get('next') = /chat/ if we got redirected from chat to login because of @login_require decorator
-    # Unknown case: request.GET.get('next') = anything , should this be an issue?
+    # Sure case: request.GET.get('next') = /chat/
+    # if we got redirected from chat to login,
+    # because of @login_require decorator
+    # Unknown case: request.GET.get('next') = ,
+    # should this be an issue?
     redirect = request.GET.get('next')
     if request.method == 'POST':  # Handle POST Request
-       # Authenticate User
+        # Authenticate User
         user = authenticate(
             username=request.POST.get('username'),
             password=request.POST.get('password')
@@ -189,19 +203,21 @@ def login_chat(request):
             # Login User
             login(request, user)
             # Redirect to chat
-            if(redirect):  # For now we only need to redirect to chat
+            if (redirect):  # For now we only need to redirect to chat
                 return HttpResponseRedirect(request.POST.get('redirect'))
             else:
                 return HttpResponseRedirect('/')
         else:  # Handle invalid Credentials
             # Front End expects a text Response
-            return HttpResponseBadRequest("Username or Password incorrect!", content_type="text/plain")
+            return HttpResponseBadRequest(
+                "Username or Password incorrect!",
+                content_type="text/plain"
+            )
     # Handle non POST Requests
     return render(request, 'auth/login.html', {'redirect': redirect})
 
 # Be aware of UNIQUE constraint failed: auth_user.username
 # https://stackoverflow.com/questions/47327406/django-error-unique-constraint-failed-auth-user-username
-
 
 
 @csrf_exempt
@@ -211,7 +227,9 @@ def register_chat(request):
         # Handle User Complete Registration
         if request.POST.get('password') == request.POST.get('check_password'):
             # Create user
-            if User.objects.filter(username=request.POST.get('username')).first():
+            if User.objects.filter(
+                username=request.POST.get('username')
+            ).first():
                 return HttpResponseBadRequest('This username is already taken')
 
             user = User.objects.create_user(
@@ -224,7 +242,8 @@ def register_chat(request):
                 # Login User
                 login(request, user)
                 # Redirect to chat
-                if(redirect == '/chat/'):  # For now we only need to redirect to chat
+                # For now we only need to redirect to chat
+                if (redirect == '/chat/'):
                     return HttpResponseRedirect(request.POST.get('redirect'))
                 else:
                     return HttpResponseRedirect('/chat/')
@@ -232,7 +251,10 @@ def register_chat(request):
                 return HttpResponseBadRequest()
         else:  # Handle Passwort Check Failed
             # if this happens it is odd, Frontend also should do this check
-            return HttpResponseBadRequest("Password does not Match!", content_type="text/plain")
+            return HttpResponseBadRequest(
+                "Password does not Match!",
+                content_type="text/plain"
+            )
     return render(request, 'auth/register.html', {'redirect': redirect})
 
 
@@ -245,4 +267,4 @@ def logout_chat(request):
 
 def password_forgot(request):
     redirect = request.GET.get('next')
-    return render(request, 'auth/passwordForgot.html', {'redirect' : redirect})
+    return render(request, 'auth/passwordForgot.html', {'redirect': redirect})
