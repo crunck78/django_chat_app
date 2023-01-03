@@ -1,270 +1,203 @@
-import json
 from django.core import serializers
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
-
-from django.http import HttpResponseRedirect
+from django.http import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    JsonResponse,
+    HttpResponseRedirect
+)
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login
+
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-
-from django.contrib.auth import logout
-
-from django.contrib.auth.models import User
-
-from .models import Message, Chat
-
-from django.db.models import Q
-
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
+from chat.utils import (
+    get_conversation,
+    get_requester_chats,
+    get_searched_users,
+    validate_registration,
+    register_new_user,
+    validate_login,
+    validate_chatroom,
+    validate_delete_message,
+    validate_new_message,
+    CustomException
+)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def register_chat(request):
+    """
+    Renders the registration page
+    """
+    redirect = request.GET.get('next')
+    return render(request, 'auth/register.html', {'next': redirect})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def create_account(request):
+    """
+    Creates a new user and logs it in
+    """
+    try:
+        validate_registration(request.POST)
+        user = register_new_user(request.POST)
+        login(request, user)
+        redirect = request.POST.get('next') or '/'
+        return HttpResponseRedirect(redirect_to=redirect)
+    except CustomException as err:
+        return HttpResponseBadRequest(
+            err,
+            content_type="text/plain"
+        )
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def login_chat(request):
+    """
+    Renders the login page
+    """
+    redirect = request.GET.get('next')
+    return render(request, 'auth/login.html', {'next': redirect})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def handle_login(request):
+    """
+    Authenticates the user
+    """
+    try:
+        user = validate_login(request.POST)
+        login(request, user)
+        redirect = request.POST.get('next') or '/'
+        return HttpResponseRedirect(redirect_to=redirect)
+    except CustomException as err:
+        return HttpResponseBadRequest(
+            err,
+            content_type="text/plain"
+        )
 
 
 @login_required(login_url='/login/')
-def deleteMessage(request):
+@require_http_methods(["GET"])
+def base(request):
+    """
+    Renders the  Base View
+    """
+    chats = get_requester_chats(request.user)
+    return render(request, 'base.html', {'chats': chats})
+
+
+@csrf_exempt
+@login_required(login_url='/login/')
+@require_http_methods(["GET"])
+def logout_chat(request):
+    """
+    Logs user out
+    """
+    # Note that logout() doesn’t throw any errors if the user wasn’t logged in.
+    logout(request)
+    return HttpResponseRedirect('/login/')
+
+
+@login_required(login_url='/login/')
+@require_http_methods(["POST"])
+def search_users(request):
+    """
+    Returns a list of all Users
+    that matches the search POST
+    """
+    try:
+        searched_list = get_searched_users(request.POST['searchUsers'])
+        return JsonResponse(searched_list, safe=False)
+    except CustomException as err:
+        return HttpResponseBadRequest(
+            err,
+            content_type="text/plain"
+        )
+
+
+@login_required(login_url='/login/')
+@require_http_methods(["POST"])
+def request_chat(request):
+    """
+    Returns a redirection to the request chat
+    """
+    try:
+        conversation = get_conversation(
+            request.POST.get('userId'),
+            request.user
+        )
+        return HttpResponseRedirect('chat/?id=' + str(conversation[0].pk))
+    except CustomException as err:
+        return HttpResponseBadRequest(
+            err,
+            content_type="text/plain"
+        )
+
+
+@login_required(login_url='/login/')
+@require_http_methods(["GET"])
+def index(request):
+    """
+    Renders Selected Chat Room
+    """
+    try:
+        context = validate_chatroom(
+            request.GET.get('id', None),
+            request.user
+        )
+        return render(request, 'chat/index.html', context)
+    except CustomException as err:
+        return HttpResponseBadRequest(
+            err,
+            content_type="text/plain"
+        )
+
+
+@login_required(login_url='/login/')
+@require_http_methods(["POST"])
+def delete_message(request):
     """
     Deletes a message from chat
     """
-    if request.method == 'POST':
-        if request.POST.get('selected_message_id'):
-            message_id = request.POST.get('selected_message_id')
-            Message.objects.get(id=message_id).delete()
-        return HttpResponse(request, "Request Complete")
-    else:
-        return HttpResponseBadRequest(request)
-
-# @login_required(login_url='/login/')
-# def deleteMessage(request, id):
-#   message = Message.objects.get(id=id)
-#   message.delete()
-#   return render()
-
-
-@login_required(login_url='/login/')
-def base(request):
-    """
-    Renders the  Base View or returns a list of all Users
-    that matches the search POST
-    """
-    # Handle Presumably Search for Users to Chat to
-    if request.method == 'POST':
-        if request.POST.get('searchUser'):
-            # MultiValueDictKeyError
-            # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
-            # Better use Django Forms
-
-            # https://stackoverflow.com/questions/23139657/django-get-all-users
-            searchUser = request.POST['searchUser']
-            # 'QuerySet' object has no attribute '_meta'
-            # https://stackoverflow.com/questions/45856557/queryset-object-has-no-attribute-meta
-
-            # search for users were no chat created was
-            # do not send passwords with users list
-            searched = User.objects.filter(username__startswith=searchUser)
-
-            # https://stackoverflow.com/questions/22490379/how-to-return-an-array-of-objects-in-a-django-model/22490689
-            searched_list = serializers.serialize('json', searched)
-
-            print(searched_list)
-            return JsonResponse(searched_list, safe=False)
-        if request.POST.get('userId'):
-
-            print("Got value :" + request.POST.get('userId'))
-            # find user, create a chat if not already exist
-            # and redirect to new created chat or existing one
-            choice = User.objects.filter(pk=request.POST.get('userId'))[0]
-
-            choiceCreator = Q(creator__username=choice.username)
-            choiceChatter = Q(chatter__username=choice.username)
-            userCreator = Q(creator__username=request.user.username)
-            userChatter = Q(chatter__username=request.user.username)
-
-            hasChat = Chat.objects.filter(
-                choiceCreator & userChatter |
-                choiceChatter & userCreator
-            )
-            print(hasChat)
-            # does a chat exist between selected user and logged in user?
-            if (hasChat.count() > 0):
-                return HttpResponseRedirect('chat/?id=' + str(hasChat[0].pk))
-            else:
-                newChat = Chat.objects.create(
-                    creator=request.user,
-                    chatter=choice,
-                )
-                print(newChat)
-                return HttpResponseRedirect('chat/?id=' + str(newChat.pk))
-    objectsChat = Chat.objects
-    created = objectsChat.filter(creator__username=request.user.username)
-    chattet = objectsChat.filter(chatter__username=request.user.username)
-    chats = created | chattet
-    # print('chats : ', chats.count())
-    # if chats:
-    return render(request, 'base.html', {'chats': chats})
-    # return render(request, 'base.html', {'chats' : []})
-
-
-@login_required(login_url='/login/')
-def index(request):
-    # Handle Pressumably Chat Opened
-    selected_chat = None
-    if request.method == 'GET':
-
-        objectsChat = Chat.objects
-
-        created = objectsChat.filter(creator__username=request.user.username)
-        chattet = objectsChat.filter(chatter__username=request.user.username)
-        chats = created | chattet
-
-        # print(chats)
-
-        chatId = request.GET.get('id', None)
-        if chatId:
-            selected_chat = Chat.objects.get(id=chatId)
-            creator = selected_chat.creator
-            chatter = selected_chat.chatter
-
-            # make sure selected chat has authenticated user as member
-            if creator == request.user or chatter == request.user:
-                selected_messages = Message.objects.filter(chat=selected_chat)
-                messages = selected_messages.order_by('created_at')
-                selected_chat = serializers.serialize('json', [selected_chat])
-                # messages = serializers.serialize('json', messages)
-                context = {
-                    'chats': chats,
-                    'selected_chat': json.loads(selected_chat)[0],
-                    'messages': messages,
-                    'chatter': chatter,
-                    'creator': creator
-                }
-                return render(request, 'chat/index.html', context)
-            else:
-                print('Trying to access a chat that does not belong to')
-                return HttpResponseBadRequest(request)
-        else:
-            # context = {'chats': chats, 'selected_chat': None, 'messages': []}
-            # return render(request, 'chat/index.html', context)
-            return HttpResponseBadRequest(request)
-    # Handle Pressumably Message Receive
-    if request.method == 'POST':
-        # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
-        # print("Received data " + request.POST.get('textmessage', ''))
-        # most likely errors report if POST[keyname] does not match
-        print(request)
-        print("Received data " + request.POST['textmessage'])
-
-        myChat = Chat.objects.get(id=request.POST['selected_chat'])
-
-        creator = myChat.creator
-        chatter = myChat.chatter
-
-        newMessage = Message.objects.create(
-            text=request.POST['textmessage'],
-            chat=myChat,
-            author=request.user,  # ? can it not be
-            receiver=chatter
+    try:
+        validate_delete_message(request.POST.get('selected_message_id'))
+        return HttpResponse(status=200)
+    except CustomException as err:
+        return HttpResponseBadRequest(
+            err,
+            content_type="text/plain"
         )
-        # if chatter == request.user:
-        #     newMessage = Message.objects.create(
-        #         text=request.POST['textmessage'],
-        #         chat=myChat,
-        #         author=request.user,  # ? can it not be
-        #         receiver=creator
-        #     )
 
-        print(newMessage.created_at)
 
-        serializeMessage = serializers.serialize('json', [newMessage, ])
+@login_required(login_url='/login/')
+@require_http_methods(["POST"])
+def post_message(request):
+
+    # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
+    # print("Received data " + request.POST.get('textmessage', ''))
+    # most likely errors report if POST[keyname] does not match
+
+    try:
+        new_message = validate_new_message(request.post)
+        serializeMessage = serializers.serialize('json', [new_message, ])
         return JsonResponse(serializeMessage[1:-1], safe=False)
-
-    # objectsChat = Chat.objects
-    # created = objectsChat.filter(creator__username=request.user.username)
-    # chattet = objectsChat.filter(chatter__username=request.user.username)
-    # chats = created | chattet
-    # return render(request, 'chat/index.html', {'chats': chats})
-
-# def getAllChats(user: User):
-#     return Chat.objects.filter(creator__id=user.id)
-
-
-def login_chat(request):
-    # This can be None
-    # Sure case: request.GET.get('next') = /chat/
-    # if we got redirected from chat to login,
-    # because of @login_require decorator
-    # Unknown case: request.GET.get('next') = ,
-    # should this be an issue?
-    redirect = request.GET.get('next')
-    if request.method == 'POST':  # Handle POST Request
-        # Authenticate User
-        user = authenticate(
-            username=request.POST.get('username'),
-            password=request.POST.get('password')
+    except CustomException as err:
+        return HttpResponseBadRequest(
+            err,
+            content_type="text/plain"
         )
-        if user is not None:  # Handle Authenticate Successfully
-            # Login User
-            login(request, user)
-            # Redirect to chat
-            if (redirect):  # For now we only need to redirect to chat
-                return HttpResponseRedirect(request.POST.get('redirect'))
-            else:
-                return HttpResponseRedirect('/')
-        else:  # Handle invalid Credentials
-            # Front End expects a text Response
-            return HttpResponseBadRequest(
-                "Username or Password incorrect!",
-                content_type="text/plain"
-            )
-    # Handle non POST Requests
-    return render(request, 'auth/login.html', {'redirect': redirect})
 
 # Be aware of UNIQUE constraint failed: auth_user.username
 # https://stackoverflow.com/questions/47327406/django-error-unique-constraint-failed-auth-user-username
 
 
-@csrf_exempt
-def register_chat(request):
-    redirect = request.GET.get('next')
-    if request.method == 'POST':   # Handle POST REQUEST
-        # Handle User Complete Registration
-        if request.POST.get('password') == request.POST.get('check_password'):
-            # Create user
-            if User.objects.filter(
-                username=request.POST.get('username')
-            ).first():
-                return HttpResponseBadRequest('This username is already taken')
-
-            user = User.objects.create_user(
-                username=request.POST.get('username'),
-                # email=request.POST.get('email'),
-                password=request.POST.get('password')
-            )
-
-            if user:
-                # Login User
-                login(request, user)
-                # Redirect to chat
-                # For now we only need to redirect to chat
-                if (redirect == '/chat/'):
-                    return HttpResponseRedirect(request.POST.get('redirect'))
-                else:
-                    return HttpResponseRedirect('/chat/')
-            else:
-                return HttpResponseBadRequest()
-        else:  # Handle Passwort Check Failed
-            # if this happens it is odd, Frontend also should do this check
-            return HttpResponseBadRequest(
-                "Password does not Match!",
-                content_type="text/plain"
-            )
-    return render(request, 'auth/register.html', {'redirect': redirect})
-
-
-def logout_chat(request):
-    # Note that logout() doesn’t throw any errors if the user wasn’t logged in.
-    logout(request)
-    # Redirect to a success page.
-    return HttpResponseRedirect('/login/')
-
-
 def password_forgot(request):
     redirect = request.GET.get('next')
-    return render(request, 'auth/passwordForgot.html', {'redirect': redirect})
+    return render(request, 'auth/passwordForgot.html', {'next': redirect})

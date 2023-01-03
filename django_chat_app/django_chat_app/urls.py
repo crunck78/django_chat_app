@@ -23,17 +23,27 @@ from chat.views import (
     register_chat,
     logout_chat,
     password_forgot,
-    deleteMessage
+    delete_message,
+    post_message,
+    search_users,
+    request_chat,
+    create_account,
+    handle_login,
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', base),
-    path('chat/', index),
-    path('chat/message/', deleteMessage),
-    # path('message/delete/<int:id>', deleteMessage),
-    path('login/', login_chat),
     path('register/', register_chat),
+    path('create-account/', create_account),
+    path('login/', login_chat),
+    path('handle-login', handle_login),
     path('logout/', logout_chat),
+    path('', base),
+    path('search-users/', search_users),
+    path('request-chat/', request_chat),
+    path('chat/', index),
+    path('message-post/', post_message),
+    path('message-delete/', delete_message),
+
     path('password-forgot/', password_forgot)
 ]

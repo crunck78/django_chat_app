@@ -17,8 +17,6 @@
     <link rel="stylesheet" href="{% static 'css/icons.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script defer src="{% static 'js/base.js' %}"></script>
-
-
 </head>
 
 <body>
@@ -55,7 +53,7 @@
                         <form id="searchForm" onsubmit="handleSearch(event);">
                             {% csrf_token %}
                             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" type="text" id="searchUser" name="searchUser"
+                                <input class="mdl-textfield__input" type="text" id="searchUsers" name="searchUsers"
                                     required>
                                 <label class="mdl-textfield__label" for="search">Search...</label>
                             </div>

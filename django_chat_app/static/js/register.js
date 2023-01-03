@@ -1,6 +1,6 @@
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
- * @param {SubmitEvent} event 
+ * @param {SubmitEvent} event
  * Possible issues :  //https://stackoverflow.com/questions/69050243/reportlab-in-django-application-error-forbidden-csrf-token-missing-or-incorre
  */
  async function handleSubmit(event) {
@@ -9,7 +9,7 @@
         const formData = new FormData(event.target);
         if(formData['password'] !== formData['check_password'])
             throw new Error("Password does not Match!")
-        const response = await fetch('/register/', {
+        const response = await fetch('/create-account/', {
             method: 'POST',
             body: formData //this has to be type FormData!!!!
         });

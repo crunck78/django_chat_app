@@ -35,7 +35,7 @@
 
                 <ul class="mdl-menu {% if forloop.counter0 == 0 %}mdl-menu--bottom-right{% else %}mdl-menu--top-right{% endif %} mdl-js-menu mdl-js-ripple-effect"
                     for="menu{{message.pk}}">
-                    <li onclick="handleDeleteMessage({{message.pk}})" class="mdl-menu__item">Delete Message</li>
+                    <li onclick="handledelete_message({{message.pk}})" class="mdl-menu__item">Delete Message</li>
                     {% comment %} <a href="message/delete/{{ message.pk }}">delete</a> {% endcomment %}
                     {% comment %} <li class="mdl-menu__item">Another Action</li>
                     <li disabled class="mdl-menu__item">Disabled Action</li>

@@ -1,12 +1,12 @@
 /**
  * Handles an input field value as for querying all users
- * @param {SubmitEvent} event 
+ * @param {SubmitEvent} event
  */
 async function handleSearch(event) {
     try {
         event.preventDefault();
         const formData = new FormData(event.target);
-        const response = await fetch('/', {
+        const response = await fetch('/search-users/', {
             method: 'POST',
             body: formData //this has to be type FormData!!!!
         });
@@ -16,7 +16,7 @@ async function handleSearch(event) {
         const searchResult = JSON.parse(await response.json());
         console.log(searchResult);
         if (searchResult.length > 0) {
-            searchUser.value = ""
+            searchUsers.value = ""
             // searchResultsContainer.innerHTML = "";
             searchResult.forEach((sR) => {
                 searchResultsContainer
@@ -26,7 +26,7 @@ async function handleSearch(event) {
                     );
             })
         } else {
-            searchResultsContainer.innerHTML = `<h2>Could not find anybody with "${searchUser.value}" as search Value.</h2>`;
+            searchResultsContainer.innerHTML = `<h2>Could not find anybody with "${searchUsers.value}" as search Value.</h2>`;
         }
 
     } catch (error) {
@@ -47,8 +47,8 @@ function generateUserHTML(searchResult) {
 }
 
 /**
- * 
- * @param {number} uuid - User Uniq Id 
+ *
+ * @param {number} uuid - User Uniq Id
  * @param {HTMLElement} - User Frontend Choice Container
  */
 async function handleChoice(uuid, container) {
@@ -57,7 +57,7 @@ async function handleChoice(uuid, container) {
         const formData = new FormData();
         formData.append('csrfmiddlewaretoken', baseToken);
         formData.append('userId', uuid);
-        const response = await fetch('/', {
+        const response = await fetch('/request-chat/', {
             method: 'POST',
             body: formData
         });

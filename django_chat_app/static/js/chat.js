@@ -12,7 +12,7 @@ async function handleSubmit(event) {
         const formData = new FormData(event.target);
         formData.append('selected_chat', selected_chat.pk);
         formData.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
-        const response = await fetch('/chat/', {
+        const response = await fetch('/message-post/', {
             method: 'POST',
             body: formData //this has to be type FormData!!!!
         });
@@ -102,19 +102,19 @@ async function handleDeleteMessage(messageId){
         const formData = new FormData();
         formData.append('selected_message_id', messageId);
         formData.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
-        const response = await fetch('/chat/message/', {
+        const response = await fetch('/message-delete/', {
             method: 'POST',
             body: formData //this has to be type FormData!!!!
         });
         if (!response.ok) // or check for response.status
             throw new Error(response.statusText);
-        deleteMessageHTML(messageId);
+        delete_messageHTML(messageId);
     } catch (error) {
         console.error(error);
     }
 }
 
-function deleteMessageHTML(messageId){
+function delete_messageHTML(messageId){
     document.getElementById(`message${messageId}`).remove();
 }
 
