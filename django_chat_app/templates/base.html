@@ -131,6 +131,7 @@
         <main class="mdl-layout__content">
             <div class="page-content">
                 <!-- Your content goes here -->
+                <!-- https://stackoverflow.com/questions/22655031/jinja2-how-to-put-a-block-in-an-if-statement -->
                 {% if request.path != '/' %}
                 {% block content%}
                 {% endblock %}

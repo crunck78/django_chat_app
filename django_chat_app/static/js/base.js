@@ -35,6 +35,7 @@ async function handleSearch(event) {
     }
 }
 
+
 function generateUserHTML(searchResult) {
     const user = searchResult.fields;
     return `<!--html-->
@@ -45,6 +46,7 @@ function generateUserHTML(searchResult) {
             </span>
         </div>`;
 }
+
 
 /**
  *

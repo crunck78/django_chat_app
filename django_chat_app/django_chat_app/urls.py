@@ -36,7 +36,7 @@ urlpatterns = [
     path('register/', register_chat),
     path('create-account/', create_account),
     path('login/', login_chat),
-    path('handle-login', handle_login),
+    path('handle-login/', handle_login),
     path('logout/', logout_chat),
     path('', base),
     path('search-users/', search_users),
@@ -45,5 +45,5 @@ urlpatterns = [
     path('message-post/', post_message),
     path('message-delete/', delete_message),
 
-    path('password-forgot/', password_forgot)
+    path('password-forgot/', password_forgot),
 ]

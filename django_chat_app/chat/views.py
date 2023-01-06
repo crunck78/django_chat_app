@@ -133,7 +133,7 @@ def request_chat(request):
             request.POST.get('userId'),
             request.user
         )
-        return HttpResponseRedirect('chat/?id=' + str(conversation[0].pk))
+        return HttpResponseRedirect('/chat/?id=' + str(conversation.pk))
     except CustomException as err:
         return HttpResponseBadRequest(
             err,
@@ -152,6 +152,7 @@ def index(request):
             request.GET.get('id', None),
             request.user
         )
+
         return render(request, 'chat/index.html', context)
     except CustomException as err:
         return HttpResponseBadRequest(
@@ -164,10 +165,13 @@ def index(request):
 @require_http_methods(["POST"])
 def delete_message(request):
     """
-    Deletes a message from chat
+    Deletes a Message from  request_user chat
     """
     try:
-        validate_delete_message(request.POST.get('selected_message_id'))
+        validate_delete_message(
+            request.POST.get('selected_message_id'),
+            request.user
+        )
         return HttpResponse(status=200)
     except CustomException as err:
         return HttpResponseBadRequest(
@@ -179,13 +183,16 @@ def delete_message(request):
 @login_required(login_url='/login/')
 @require_http_methods(["POST"])
 def post_message(request):
+    """
+    Creates a new Message from request_user to selected_chat
+    """
 
     # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
     # print("Received data " + request.POST.get('textmessage', ''))
     # most likely errors report if POST[keyname] does not match
 
     try:
-        new_message = validate_new_message(request.post)
+        new_message = validate_new_message(request)
         serializeMessage = serializers.serialize('json', [new_message, ])
         return JsonResponse(serializeMessage[1:-1], safe=False)
     except CustomException as err:

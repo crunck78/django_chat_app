@@ -10,6 +10,10 @@ from django.contrib.auth import authenticate
 
 
 def get_searched_users(request_search):
+    """
+    Returns a List of filtered Users,
+    where username starts with request_search value
+    """
     # MultiValueDictKeyError
     # https://stackoverflow.com/questions/5895588/django-multivaluedictkeyerror-error-how-do-i-deal-with-it
     # Better use Django Forms
@@ -27,6 +31,10 @@ def get_searched_users(request_search):
 
 
 def get_conversation(user_id, request_user):
+    """
+    Returns the Chat between User with id user_id and request_user
+    If no such Chat exists, a new Chat is created
+    """
     selected_user = get_user_by_id(user_id)
     query_chat = get_query_chat(selected_user, request_user)
 
@@ -36,20 +44,52 @@ def get_conversation(user_id, request_user):
     )
     # does a chat exist between selected user and logged in user?
     if (hasChat.count() > 0):
-        return hasChat
+        return hasChat[0]
     else:
         newChat = create_conversation(selected_user, request_user)
         return newChat
 
 
+def get_user_by_id(user_id):
+    """
+    Returns the User Model where id equals user_id
+    """
+    try:
+        return User.objects.get(id=user_id)
+    except Exception as err:
+        raise CustomException(err)
+
+
+def get_query_chat(selected_user, request_user):
+    """
+    Returns a Dictionary to help filter for a list of Chats,
+    between selected_user and request_user
+    """
+    return {
+        "selected_creator": Q(creator__username=selected_user.username),
+        "selected_chatter": Q(chatter__username=selected_user.username),
+        "user_creator": Q(creator__username=request_user.username),
+        "user_chatter": Q(chatter__username=request_user.username),
+    }
+
+
+def create_conversation(selected_user, request_user):
+    """
+    Creates a new Chat between selected_user and request_user
+    """
+    return Chat.objects.create(
+        creator=request_user,
+        chatter=selected_user,
+    )
+
+
 def validate_chatroom(chat_id, request_user):
-    selected_chat = Chat.objects.get(id=chat_id)
+    selected_chat = get_chat_by_id(chat_id)
 
     validate_membership(request_user, selected_chat)
     creator = selected_chat.creator
     chatter = selected_chat.chatter
-    selected_messages = Message.objects.filter(chat=selected_chat)
-    messages = selected_messages.order_by('created_at')
+    messages = get_chat_messages(selected_chat)
     selected_chat = serializers.serialize('json', [selected_chat])
     chats = get_requester_chats(request_user)
     context = {
@@ -62,26 +102,54 @@ def validate_chatroom(chat_id, request_user):
     return context
 
 
+def get_chat_messages(selected_chat):
+    """
+    Returns all Messages from selected_chat
+    """
+    return Message.objects.filter(chat=selected_chat).order_by('created_at')
+
+
 def validate_delete_message(message_id, request_user):
+    """
+    Deletes a message if request user is a member of the message chat
+    and request user is owner of message
+    """
     message = Message.objects.get(id=message_id)
     validate_membership(request_user, message.chat)
+    validate_message_owner(message, request_user)
     message.delete()
 
 
-def validate_new_message(request_post):
+def validate_message_owner(message, request_user):
+    """
+    Raises exception if request_user is not the author of the message
+    """
+    author = message.author
+    if author != request_user:
+        raise CustomException(
+            'This is not your message to delete!'
+        )
 
-    my_chat = get_chat_by_id(request_post.get('selected_chat', None))
-    validate_membership(request_post.user, my_chat)
+
+def validate_new_message(request):
+    """
+    Creates new message if request user is member of the selected_chat
+    """
+    my_chat = get_chat_by_id(request.POST.get('selected_chat', None))
+    validate_membership(request.user, my_chat)
     new_message = Message.objects.create(
-        text=request_post.get['textmessage'],
+        text=request.POST.get('textmessage'),
         chat=my_chat,
-        author=request_post.user,  # ? can it not be
+        author=request.user,  # ? can it not be
         receiver=my_chat.chatter
     )
     return new_message
 
 
 def validate_membership(request_user, chat):
+    """
+    Raise exception if request_user is no member of hte chat
+    """
     creator = chat.creator
     chatter = chat.chatter
     if creator != request_user and chatter != request_user:
@@ -90,31 +158,20 @@ def validate_membership(request_user, chat):
         )
 
 
-def get_user_by_id(user_id):
-    return User.objects.filter(pk=user_id)[0]
-
-
 def get_chat_by_id(chat_id):
-    return Chat.objects.get(id=chat_id)
-
-
-def get_query_chat(selected_user, request_user):
-    return {
-        "selected_creator": Q(creator__username=selected_user.username),
-        "selected_chatter": Q(chatter__username=selected_user.username),
-        "user_creator": Q(creator__username=request_user.username),
-        "user_chatter": Q(chatter__username=request_user.username),
-    }
-
-
-def create_conversation(selected_user, request_user):
-    return Chat.objects.create(
-        creator=request_user,
-        chatter=selected_user,
-    )
+    """
+    Returns a Chat Model were id is equal to chat_id
+    """
+    try:
+        return Chat.objects.get(id=chat_id)
+    except Exception as err:
+        raise CustomException(err)
 
 
 def get_requester_chats(request_user):
+    """
+    Returns all Chats were request_user is a member
+    """
     objects_chat = Chat.objects
     creator = objects_chat.filter(creator__username=request_user.username)
     chatter = objects_chat.filter(chatter__username=request_user.username)
@@ -123,6 +180,10 @@ def get_requester_chats(request_user):
 
 
 def validate_registration(request_post):
+    """
+    Raises exception if Password check fails
+    or user already exists
+    """
     password_match = (
         request_post.get('password') ==
         request_post.get('check_password')
@@ -136,6 +197,9 @@ def validate_registration(request_post):
 
 
 def register_new_user(request_post):
+    """
+    Creates and return a new user by username and password
+    """
     new_user = User.objects.create_user(
         username=request_post.get('username'),
         # email=request_post.get('email'),
@@ -145,6 +209,10 @@ def register_new_user(request_post):
 
 
 def validate_login(request_post):
+    """
+    Authenticates a user by username and password
+    Raises exception if Credentials are invalid
+    """
     user = authenticate(
         username=request_post.get('username'),
         password=request_post.get('password')
@@ -155,10 +223,16 @@ def validate_login(request_post):
 
 
 def get_user_by_name(name):
+    """
+    Returns first user where username equals name
+    """
     return User.objects.filter(
         username=name
     ).first()
 
 
 class CustomException(Exception):
+    """
+    A Help Exception Class that just extends Exception
+    """
     pass

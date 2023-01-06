@@ -1,6 +1,7 @@
 const selected_chat = JSON.parse(document.getElementById('selected_chat').textContent);
 console.log(selected_chat);
 
+
 /**
  * Gets the event.target FormData, fetch a Post request with FormData as Payload, updates FrontEnd after response
  * @param {SubmitEvent} event
@@ -20,7 +21,6 @@ async function handleSubmit(event) {
             throw new Error(response.statusText);
         const jsonResponse = JSON.parse(await response.json());
         const newMessage = jsonResponse.fields;
-        console.log(newMessage);
         messageContainer.insertAdjacentHTML("beforeend", generateMessageHTML(newMessage));
         chatToBottom();
         clearInput();
@@ -29,10 +29,11 @@ async function handleSubmit(event) {
     }
 }
 
+
 /**
  * Generates a Front-End HTML Message View
  * @param {*} message - fields from a response serialized Message
- * @returns {string} - a message HTML format
+ * @returns {string} - a message as HTML format
  */
 function generateMessageHTML(message) {
     return `<!--html-->
@@ -49,6 +50,7 @@ function generateMessageHTML(message) {
     </div>`;
 }
 
+
 function chatToBottom() {
     let scrollingChat = setInterval(() => {
         if (reachedBottom(messageContainer)) {
@@ -58,9 +60,11 @@ function chatToBottom() {
     });
 }
 
+
 function clearInput() {
     document.getElementById('messageField').value = "";
 }
+
 
 /**
  * Check wheatear the @param container is scrolled to the bottom
@@ -73,6 +77,7 @@ function reachedBottom(container) {
         container.scrollHeight;
 }
 
+
 /**
  * @deprecated
  * @param {HTMLFormElement} form
@@ -83,6 +88,7 @@ function getFormData(form) {
     const value = Object.fromEntries(data.entries());
     return value;
 }
+
 
 /**
  * @deprecated
@@ -96,7 +102,8 @@ function getDateNowFormat() {
     return monthNames[now.getMonth()] + ". " + now.getDay() + ", " + now.getFullYear();
 }
 
-async function handleDeleteMessage(messageId){
+
+async function handleDeleteMessage(messageId) {
     console.log(messageId);
     try {
         const formData = new FormData();
@@ -114,23 +121,12 @@ async function handleDeleteMessage(messageId){
     }
 }
 
-function delete_messageHTML(messageId){
+
+function delete_messageHTML(messageId) {
     document.getElementById(`message${messageId}`).remove();
 }
 
+
 window.onload = () => {
     chatToBottom();
-    //chatListenToScroll();
 }
-
-// function chatListenToScroll() {
-//     document.getElementById("messageContainer")
-//         .addEventListener("scroll", () => {
-//             document.getElementsByClassName("mdl-menu")
-//                 .forEach( mdlMenu => updatePosition(mdlMenu) )
-//         });
-// }
-
-// function updatePosition(mdlMenu){
-
-// }

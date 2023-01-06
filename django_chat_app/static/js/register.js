@@ -15,11 +15,8 @@
         });
         if (response.status == 400 || !response.ok) // check for bad request
             throw new Error(await response.text()); // in this case backend send a Bad Request Response as a text
-        // const jsonResponse = JSON.parse(await response.json());
-        // console.log(jsonResponse);
         window.location.replace(response.url);
     } catch (error) {
         errorLog.innerHTML = error;
-        console.error(error);
     }
 }
