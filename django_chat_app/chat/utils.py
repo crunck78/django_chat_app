@@ -84,6 +84,9 @@ def create_conversation(selected_user, request_user):
 
 
 def validate_chatroom(chat_id, request_user):
+    """
+    Returns context for chat room if valid
+    """
     selected_chat = get_chat_by_id(chat_id)
 
     validate_membership(request_user, selected_chat)
@@ -148,7 +151,7 @@ def validate_new_message(request):
 
 def validate_membership(request_user, chat):
     """
-    Raise exception if request_user is no member of hte chat
+    Raise exception if request_user is no member of the chat
     """
     creator = chat.creator
     chatter = chat.chatter

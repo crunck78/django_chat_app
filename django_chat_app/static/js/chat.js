@@ -1,5 +1,4 @@
 const selected_chat = JSON.parse(document.getElementById('selected_chat').textContent);
-console.log(selected_chat);
 
 
 /**
@@ -21,7 +20,9 @@ async function handleSubmit(event) {
             throw new Error(response.statusText);
         const jsonResponse = JSON.parse(await response.json());
         const newMessage = jsonResponse.fields;
+        newMessage.pk = jsonResponse.pk;
         messageContainer.insertAdjacentHTML("beforeend", generateMessageHTML(newMessage));
+        componentHandler.upgradeDom();
         chatToBottom();
         clearInput();
     } catch (error) {
@@ -46,6 +47,20 @@ function generateMessageHTML(message) {
         </div>
         <div class="mdl-card__supporting-text">
             <span>[${message.created_at}]</span>
+        </div>
+        <div class="mdl-card__menu">
+            <div class="menu-container">
+                <!-- Right aligned menu below button -->
+                <button id="menu${message.pk}" class="mdl-button mdl-js-button mdl-button--icon">
+                    <i class="material-icons">more_vert</i>
+                </button>
+
+                <ul class="mdl-menu mdl-menu--top-right mdl-js-menu mdl-js-ripple-effect"
+                    for="menu${message.pk}">
+                    <li onclick="handleDeleteMessage(${message.pk})" class="mdl-menu__item">Delete Message</li>
+                </ul>
+
+            </div>
         </div>
     </div>`;
 }
@@ -104,7 +119,6 @@ function getDateNowFormat() {
 
 
 async function handleDeleteMessage(messageId) {
-    console.log(messageId);
     try {
         const formData = new FormData();
         formData.append('selected_message_id', messageId);

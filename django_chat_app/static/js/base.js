@@ -14,7 +14,6 @@ async function handleSearch(event) {
             throw new Error(await response.text()); // in this case backend send a Bad Request Response as a text
 
         const searchResult = JSON.parse(await response.json());
-        console.log(searchResult);
         if (searchResult.length > 0) {
             searchUsers.value = ""
             // searchResultsContainer.innerHTML = "";
@@ -55,7 +54,6 @@ function generateUserHTML(searchResult) {
  */
 async function handleChoice(uuid, container) {
     try {
-        console.log(uuid);
         const formData = new FormData();
         formData.append('csrfmiddlewaretoken', baseToken);
         formData.append('userId', uuid);
