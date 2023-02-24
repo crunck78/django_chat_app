@@ -83,7 +83,7 @@
             </div>
         </header>
         <div class="mdl-layout__drawer">
-            <span class="mdl-layout-title">Chatroom</span>
+            <span class="mdl-layout-title">Chatrooms</span>
 
             <nav class="mdl-navigation">
 
@@ -137,12 +137,11 @@
                 {% endblock %}
                 {% else %}
                 <div>
-                    <h2>DASHBOARD</h2>
+                    <h2>Search someone by name to talk to.</h2>
                     {% for chat in chats%}
                     {% empty %}
                     <p>
-                        Seems like you have no conversation so far.<br>
-                        Try to search someone by name to talk to.
+                        Seems like you have no conversation so far.
                     </p>
                     {% endfor %}
                     <div id="searchResultsContainer" class="mdl-list"></div>

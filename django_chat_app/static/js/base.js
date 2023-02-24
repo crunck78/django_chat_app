@@ -5,6 +5,7 @@
 async function handleSearch(event) {
     try {
         event.preventDefault();
+        searchResultsContainer.innerHTML = "";
         const formData = new FormData(event.target);
         const response = await fetch('/search-users/', {
             method: 'POST',
@@ -16,7 +17,7 @@ async function handleSearch(event) {
         const searchResult = JSON.parse(await response.json());
         if (searchResult.length > 0) {
             searchUsers.value = ""
-            // searchResultsContainer.innerHTML = "";
+
             searchResult.forEach((sR) => {
                 searchResultsContainer
                     .insertAdjacentHTML(
