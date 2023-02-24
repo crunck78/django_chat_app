@@ -23,6 +23,7 @@
 #messageContainer{
     max-height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     transition: all 300ms;
 
     /* display: flex;
@@ -34,6 +35,8 @@
     min-height: unset;
     overflow: visible;
     z-index: unset;
+    max-width: 90%;
+    min-width: 50%;
     /* animation: show 3000ms ease-in-out; */
 }
 

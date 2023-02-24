@@ -3,6 +3,12 @@
     min-height: calc(100% - 60px);
 }
 
+@media(max-width: 500px){
+    .page-content{
+        padding: 30px 6px;
+    }
+}
+
 .mdl-layout__drawer .mdl-navigation {
     flex: 1;
 }
