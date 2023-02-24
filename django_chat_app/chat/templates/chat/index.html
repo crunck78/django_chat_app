@@ -26,6 +26,7 @@
         <div class="mdl-card__supporting-text">
             <span>[{{message.created_at | date:"Y-m-d"}}]</span>
         </div>
+        {% if message.author == request.user %}
         <div class="mdl-card__menu">
             <div class="menu-container">
                 <!-- Right aligned menu below button -->
@@ -44,6 +45,7 @@
 
             </div>
         </div>
+        {% endif %}
     </div>
     {% empty %}
     <p>Chat is empty</p>
