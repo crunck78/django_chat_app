@@ -26,8 +26,9 @@
 }
 
 #searchForm {
-    /* display: flex;
-   align-items: center; */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 header .mdl-layout__drawer-button {
@@ -37,11 +38,13 @@ header .mdl-layout__drawer-button {
 header .mdl-textfield {
     width: unset;
     color: black;
+    flex: 1;
 }
 
 header .mdl-card {
     min-height: unset;
     width: unset;
+    max-width: 100%;
 }
 
 header .mdl-card .mdl-card__actions {
