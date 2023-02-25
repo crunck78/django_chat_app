@@ -31,6 +31,9 @@ from chat.views import (
     handle_login,
 )
 
+from django.conf.urls.static import static
+from django.conf import settings
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', register_chat),
@@ -47,3 +50,9 @@ urlpatterns = [
 
     path('password-forgot/', password_forgot),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.STATIC_URL,
+        document_root=settings.STATIC_ROOT,
+    )

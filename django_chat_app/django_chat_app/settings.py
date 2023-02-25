@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,15 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%gw7gz6*032ha@j@uyn(i8m#qni+sg^61c+=0^1q1@k12uo5z4'
+SECRET_KEY = os.environ.get('secretKey')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.environ.get('debug', 0)))
 
-ALLOWED_HOSTS = [
-    'mihaiandrei.pythonanywhere.com',
-]
-
+ALLOWED_HOSTS = []
+ALLOWED_HOSTS.extend(
+    filter(
+        None,
+        os.environ.get('allowedHosts', '').split(','),
+    )
+)
 
 # Application definition
 
@@ -118,10 +123,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
-
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
 STATIC_URL = 'static/'
+
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static')
+    ]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# STATIC_URL = '/static/static/'
+# MEDIA_URL = '/static/media/'
+
+# MEDIA_ROOT = '/vol/web/media'
+# STATIC_ROOT = '/vol/web/static'
 
 
 # Default primary key field type
